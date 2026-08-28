@@ -1,0 +1,8 @@
+{
+  "sdkVersion": "10.0.26100.0",
+  "architecture": "x64",
+  "headers": { "webauthn.h": "FB575592CE15D8F672386AAB5E6B3D3AAC101F4EC11A8C52C8085CD6D59A9665", "webauthnplugin.h": "8B8897A5FE7D4575B5DE8287C7F0E79CED3D96CAF6D273BC7E473E225AC873B8", "pluginauthenticator.h": "3B5C60E4972AA9FCD3BD6499335F5BE241A757DD628E231FF0AE7ADBC7F859E7" },
+  "stableInterface": { "iid": "d26bcf6f-b54c-43ff-9f06-d5bf148625f7", "methods": ["MakeCredential", "GetAssertion", "CancelOperation", "GetLockStatus"] },
+  "productIdentifiers": { "aaguid": "37d56046-0073-4dd1-9e00-fa65c45fff4f", "clsid": "c962d69e-322b-4098-94a7-e08d366bbba4" },
+  "forbiddenUnprefixedSymbols": ["WebAuthNPluginAddAuthenticator2", "WebAuthNPluginPerformUserVerification2"]
+}

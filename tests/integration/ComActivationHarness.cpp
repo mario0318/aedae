@@ -22,7 +22,7 @@ int wmain(int argc, wchar_t** argv)
     if (can_unload_now() != S_OK) return 6;
 
     if (FAILED(get_class_object(aedae::kPluginClsid, IID_IClassFactory, reinterpret_cast<void**>(&factory)))) return 7;
-    if (FAILED(factory->LockServer(TRUE))) return 6;
+    if (FAILED(factory->LockServer(TRUE))) return 8;
     factory->Release();
     if (can_unload_now() != S_FALSE) return 8;
     if (FAILED(get_class_object(aedae::kPluginClsid, IID_IClassFactory, reinterpret_cast<void**>(&factory)))) return 9;

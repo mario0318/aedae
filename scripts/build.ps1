@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param([ValidateSet('Debug', 'Release')][string]$Configuration = 'Debug')
 
-& (Join-Path $PSScriptRoot 'verify-webauthnplugin-contract.ps1') -ProjectFile (Join-Path $PSScriptRoot '..\build\AeDaePlugin.vcxproj')
+& (Join-Path $PSScriptRoot 'verify-webauthnplugin-contract.ps1')
 if (-not $?) { exit 1 }
 & (Join-Path $PSScriptRoot 'test-webauthnplugin-contract-guard.ps1')
 if (-not $?) { exit 1 }

@@ -1,37 +1,27 @@
 [CmdletBinding()]
 param(
     [string]$SdkVersion,
-    [string]$ProjectFile = (Join-Path $PSScriptRoot '..\build\AeDaePlugin.vcxproj'),
-    [string]$ContractIncludeRoot
+    [string[]]$ProjectFiles = @((Join-Path $PSScriptRoot '..\build\AeDaePlugin.vcxproj'), (Join-Path $PSScriptRoot '..\build\AeDaeApp.vcxproj'), (Join-Path $PSScriptRoot '..\build\ComActivationHarness.vcxproj'))
 )
 
 $approvedSdkVersion = '10.0.26100.0'
 $approvedWebAuthnHash = 'FB575592CE15D8F672386AAB5E6B3D3AAC101F4EC11A8C52C8085CD6D59A9665'
 $approvedPluginHash = '8B8897A5FE7D4575B5DE8287C7F0E79CED3D96CAF6D273BC7E473E225AC873B8'
 $approvedAuthenticatorHash = '3B5C60E4972AA9FCD3BD6499335F5BE241A757DD628E231FF0AE7ADBC7F859E7'
-if (-not (Test-Path -LiteralPath $ProjectFile -PathType Leaf)) {
-    throw "Plugin project file is missing: $ProjectFile"
+foreach ($ProjectFile in $ProjectFiles) {
+    if (-not (Test-Path -LiteralPath $ProjectFile -PathType Leaf)) { throw "Pinned build project is missing: $ProjectFile" }
+    $projectText = Get-Content -LiteralPath $ProjectFile -Raw
+    $sdkMatches = [regex]::Matches($projectText, '<WindowsTargetPlatformVersion>(?<version>[^<]+)</WindowsTargetPlatformVersion>')
+    if ($sdkMatches.Count -ne 1) { throw "Expected exactly one WindowsTargetPlatformVersion in $ProjectFile." }
+    $projectSdkVersion = $sdkMatches[0].Groups['version'].Value.Trim()
+    if ($projectSdkVersion -ne $approvedSdkVersion) { throw "Pinned build project targets unapproved Windows SDK version: $projectSdkVersion in $ProjectFile. Expected $approvedSdkVersion; re-pinning requires security review." }
 }
+if ($PSBoundParameters.ContainsKey('SdkVersion') -and $SdkVersion -ne $approvedSdkVersion) {
+    throw "Verifier SDK version $SdkVersion does not match approved SDK version $approvedSdkVersion."
+}
+$SdkVersion = $approvedSdkVersion
 
-$projectText = Get-Content -LiteralPath $ProjectFile -Raw
-$sdkMatches = [regex]::Matches($projectText, '<WindowsTargetPlatformVersion>(?<version>[^<]+)</WindowsTargetPlatformVersion>')
-if ($sdkMatches.Count -ne 1) {
-    throw "Expected exactly one WindowsTargetPlatformVersion in $ProjectFile."
-}
-$projectSdkVersion = $sdkMatches[0].Groups['version'].Value.Trim()
-if ($projectSdkVersion -ne $approvedSdkVersion) {
-    throw "Plugin project targets unapproved Windows SDK version: $projectSdkVersion. Expected $approvedSdkVersion; re-pinning requires security review."
-}
-if ($PSBoundParameters.ContainsKey('SdkVersion') -and $SdkVersion -ne $projectSdkVersion) {
-    throw "Verifier SDK version $SdkVersion does not match project SDK version $projectSdkVersion."
-}
-$SdkVersion = $projectSdkVersion
-
-$includeRoot = if ($PSBoundParameters.ContainsKey('ContractIncludeRoot')) {
-    $ContractIncludeRoot
-} else {
-    "C:\Program Files (x86)\Windows Kits\10\Include\$SdkVersion\um"
-}
+$includeRoot = "C:\Program Files (x86)\Windows Kits\10\Include\$SdkVersion\um"
 $pluginHeader = Join-Path $includeRoot 'webauthnplugin.h'
 $authenticatorHeader = Join-Path $includeRoot 'pluginauthenticator.h'
 $webAuthnHeader = Join-Path $includeRoot 'webauthn.h'

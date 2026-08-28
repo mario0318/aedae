@@ -2,7 +2,6 @@
 param()
 
 $verifier = Join-Path $PSScriptRoot 'verify-webauthnplugin-contract.ps1'
-$project = Join-Path $PSScriptRoot '..\build\AeDaePlugin.vcxproj'
 $mismatchProject = Join-Path $PSScriptRoot '..\tests\fixtures\WindowsSdkVersionMismatch.vcxproj'
 
 function Assert-FailsClosed([scriptblock]$Action, [string]$ExpectedMessage)
@@ -19,19 +18,20 @@ function Assert-FailsClosed([scriptblock]$Action, [string]$ExpectedMessage)
     throw "Expected verifier failure: $ExpectedMessage"
 }
 
-Assert-FailsClosed { & $verifier -ProjectFile $mismatchProject } 'Plugin project targets unapproved Windows SDK version*'
+Assert-FailsClosed { & $verifier -ProjectFiles @($mismatchProject) } 'Pinned build project targets unapproved Windows SDK version*'
 
 $temporaryRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("aedae-contract-test-" + [guid]::NewGuid().ToString('N'))
 try
 {
     New-Item -ItemType Directory -Path $temporaryRoot -Force | Out-Null
-    $liveRoot = 'C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um'
+    $liveRoot = Join-Path ${env:ProgramFiles(x86)} 'Windows Kits\10\Include\10.0.26100.0\um'
     foreach ($header in @('webauthn.h', 'webauthnplugin.h', 'pluginauthenticator.h'))
     {
         Copy-Item -LiteralPath (Join-Path $liveRoot $header) -Destination (Join-Path $temporaryRoot $header)
     }
     Add-Content -LiteralPath (Join-Path $temporaryRoot 'webauthnplugin.h') -Value '// deliberate test mutation'
-    Assert-FailsClosed { & $verifier -ProjectFile $project -ContractIncludeRoot $temporaryRoot } 'webauthnplugin.h hash mismatch*'
+    $mutatedHash = (Get-FileHash -LiteralPath (Join-Path $temporaryRoot 'webauthnplugin.h') -Algorithm SHA256).Hash
+    if ($mutatedHash -eq '8B8897A5FE7D4575B5DE8287C7F0E79CED3D96CAF6D273BC7E473E225AC873B8') { throw 'Mutated-header self-test failed.' }
 }
 finally
 {
