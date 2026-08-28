@@ -1,3 +1,4 @@
+$ErrorActionPreference = 'Stop'
 $root=Split-Path $PSScriptRoot -Parent;$manifest=Join-Path $root 'reports\webauthnplugin-abi-manifest.json';Import-Module (Join-Path $PSScriptRoot 'ContractCheck.psm1') -Force
 $projects=@((Join-Path $root 'build\AeDaePlugin.vcxproj'),(Join-Path $root 'build\AeDaeApp.vcxproj'),(Join-Path $root 'build\ComActivationHarness.vcxproj'));Invoke-AeDaeProjectSdkCheck $projects $manifest
 $sdk=(Get-Content $manifest -Raw|ConvertFrom-Json).sdkVersion;$include=Join-Path ${env:ProgramFiles(x86)} "Windows Kits\10\Include\$sdk\um";Invoke-AeDaeHeaderCheck $include $manifest;Write-Output "WebAuthn plugin contract verified: SDK $sdk"

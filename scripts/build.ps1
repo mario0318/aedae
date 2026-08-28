@@ -1,10 +1,11 @@
 [CmdletBinding()]
 param([ValidateSet('Debug', 'Release')][string]$Configuration = 'Debug')
+$ErrorActionPreference = 'Stop'
 
 & (Join-Path $PSScriptRoot 'verify-webauthnplugin-contract.ps1')
-if (-not $?) { exit 1 }
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 & (Join-Path $PSScriptRoot 'test-webauthnplugin-contract-guard.ps1')
-if (-not $?) { exit 1 }
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 $vswhere = 'C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe'
 if (-not (Test-Path -LiteralPath $vswhere)) { throw 'Visual Studio Build Tools with C++ support is required.' }
