@@ -1,6 +1,18 @@
 [CmdletBinding()]
 param()
 
+$root = Split-Path $PSScriptRoot -Parent
+$manifestPath = Join-Path $root 'reports\webauthnplugin-abi-manifest.json'
+Import-Module (Join-Path $PSScriptRoot 'ContractCheck.psm1') -Force
+$sdkRoot = Join-Path ${env:ProgramFiles(x86)} 'Windows Kits\10\Include\10.0.26100.0\um'
+foreach ($header in @('webauthn.h', 'webauthnplugin.h', 'pluginauthenticator.h')) {
+    $temp = Join-Path ([IO.Path]::GetTempPath()) ([guid]::NewGuid().ToString('N'))
+    New-Item -ItemType Directory $temp | Out-Null
+    try { foreach ($file in @('webauthn.h', 'webauthnplugin.h', 'pluginauthenticator.h')) { Copy-Item (Join-Path $sdkRoot $file) (Join-Path $temp $file) }; Add-Content (Join-Path $temp $header) '// mutation'; try { Invoke-AeDaeHeaderCheck $temp $manifestPath; throw 'Expected verifier failure' } catch { if ($_.Exception.Message -notlike "$header hash mismatch*") { throw } } } finally { Remove-Item $temp -Recurse -Force }
+}
+Write-Output 'WebAuthn contract guard negative tests passed'
+exit 0
+
 $verifier = Join-Path $PSScriptRoot 'verify-webauthnplugin-contract.ps1'
 $mismatchProject = Join-Path $PSScriptRoot '..\tests\fixtures\WindowsSdkVersionMismatch.vcxproj'
 

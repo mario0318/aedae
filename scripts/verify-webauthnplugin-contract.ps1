@@ -4,6 +4,13 @@ param(
     [string[]]$ProjectFiles = @((Join-Path $PSScriptRoot '..\build\AeDaePlugin.vcxproj'), (Join-Path $PSScriptRoot '..\build\AeDaeApp.vcxproj'), (Join-Path $PSScriptRoot '..\build\ComActivationHarness.vcxproj'))
 )
 
+# The production gate has no include-root or project override. Test seams live in ContractCheck.psm1.
+$ProjectFiles = @(
+    (Join-Path $PSScriptRoot '..\build\AeDaePlugin.vcxproj'),
+    (Join-Path $PSScriptRoot '..\build\AeDaeApp.vcxproj'),
+    (Join-Path $PSScriptRoot '..\build\ComActivationHarness.vcxproj')
+)
+
 $approvedSdkVersion = '10.0.26100.0'
 $approvedWebAuthnHash = 'FB575592CE15D8F672386AAB5E6B3D3AAC101F4EC11A8C52C8085CD6D59A9665'
 $approvedPluginHash = '8B8897A5FE7D4575B5DE8287C7F0E79CED3D96CAF6D273BC7E473E225AC873B8'
