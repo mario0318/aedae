@@ -1,0 +1,4 @@
+LIBRARY aeDaePlugin
+EXPORTS
+    DllCanUnloadNow PRIVATE
+    DllGetClassObject PRIVATE

@@ -1,0 +1,31 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AeDaePlugin", "build\AeDaePlugin.vcxproj", "{1F8D9D4B-15E2-4A3B-A749-20CE89EDE4A8}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AeDaeApp", "build\AeDaeApp.vcxproj", "{CE89C3EA-7F6A-4318-9B0B-267C0A2676A0}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ComActivationHarness", "build\ComActivationHarness.vcxproj", "{C84A87A6-AF0D-4FF3-91AC-84925B5E1D91}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1F8D9D4B-15E2-4A3B-A749-20CE89EDE4A8}.Debug|x64.ActiveCfg = Debug|x64
+		{1F8D9D4B-15E2-4A3B-A749-20CE89EDE4A8}.Debug|x64.Build.0 = Debug|x64
+		{1F8D9D4B-15E2-4A3B-A749-20CE89EDE4A8}.Release|x64.ActiveCfg = Release|x64
+		{1F8D9D4B-15E2-4A3B-A749-20CE89EDE4A8}.Release|x64.Build.0 = Release|x64
+		{CE89C3EA-7F6A-4318-9B0B-267C0A2676A0}.Debug|x64.ActiveCfg = Debug|x64
+		{CE89C3EA-7F6A-4318-9B0B-267C0A2676A0}.Debug|x64.Build.0 = Debug|x64
+		{CE89C3EA-7F6A-4318-9B0B-267C0A2676A0}.Release|x64.ActiveCfg = Release|x64
+		{CE89C3EA-7F6A-4318-9B0B-267C0A2676A0}.Release|x64.Build.0 = Release|x64
+		{C84A87A6-AF0D-4FF3-91AC-84925B5E1D91}.Debug|x64.ActiveCfg = Debug|x64
+		{C84A87A6-AF0D-4FF3-91AC-84925B5E1D91}.Debug|x64.Build.0 = Debug|x64
+		{C84A87A6-AF0D-4FF3-91AC-84925B5E1D91}.Release|x64.ActiveCfg = Release|x64
+		{C84A87A6-AF0D-4FF3-91AC-84925B5E1D91}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+EndGlobal
+

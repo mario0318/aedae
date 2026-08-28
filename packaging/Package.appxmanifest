@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10" xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10" IgnorableNamespaces="uap">
+  <Identity Name="R3Labs.AeDae" Publisher="CN=R3 Labs" Version="0.1.0.0" ProcessorArchitecture="x64" />
+  <Properties><DisplayName>aeDae</DisplayName><PublisherDisplayName>R3 Labs</PublisherDisplayName><Logo>Assets\StoreLogo.png</Logo></Properties>
+  <Resources><Resource Language="en-us" /></Resources>
+  <Applications><Application Id="App" Executable="aeDaeApp.exe" EntryPoint="Windows.FullTrustApplication"><uap:VisualElements DisplayName="aeDae" Description="Windows Personal Authenticator" BackgroundColor="#0a0a0f" Square150x150Logo="Assets\Square150x150Logo.png" Square44x44Logo="Assets\Square44x44Logo.png" /></Application></Applications>
+  <Capabilities><Capability Name="internetClient" /></Capabilities>
+</Package>
+

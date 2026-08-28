@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations"><ProjectConfiguration Include="Debug|x64"><Configuration>Debug</Configuration><Platform>x64</Platform></ProjectConfiguration><ProjectConfiguration Include="Release|x64"><Configuration>Release</Configuration><Platform>x64</Platform></ProjectConfiguration></ItemGroup>
+  <PropertyGroup Label="Globals"><ProjectGuid>{1F8D9D4B-15E2-4A3B-A749-20CE89EDE4A8}</ProjectGuid><Keyword>Win32Proj</Keyword><RootNamespace>AeDaePlugin</RootNamespace><WindowsTargetPlatformVersion>10.0.26100.0</WindowsTargetPlatformVersion></PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration"><ConfigurationType>DynamicLibrary</ConfigurationType><UseDebugLibraries>true</UseDebugLibraries><PlatformToolset>v143</PlatformToolset><CharacterSet>Unicode</CharacterSet></PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration"><ConfigurationType>DynamicLibrary</ConfigurationType><UseDebugLibraries>false</UseDebugLibraries><PlatformToolset>v143</PlatformToolset><CharacterSet>Unicode</CharacterSet></PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <PropertyGroup><OutDir>$(SolutionDir)artifacts\$(Configuration)\</OutDir><IntDir>$(SolutionDir)obj\AeDaePlugin\$(Configuration)\</IntDir><TargetName>aeDaePlugin</TargetName></PropertyGroup>
+  <ItemDefinitionGroup><ClCompile><LanguageStandard>stdcpp20</LanguageStandard><WarningLevel>Level4</WarningLevel><TreatWarningAsError>true</TreatWarningAsError><PreprocessorDefinitions>UNICODE;_UNICODE;WIN32_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions></ClCompile><Link><SubSystem>Windows</SubSystem><ModuleDefinitionFile>$(ProjectDir)AeDaePlugin.def</ModuleDefinitionFile></Link></ItemDefinitionGroup>
+  <ItemGroup><ClCompile Include="..\src\PluginAuthenticator\dllmain.cpp" /><ClCompile Include="..\src\PluginAuthenticator\ModuleLifetime.cpp" /><ClCompile Include="..\src\PluginAuthenticator\PluginAuthenticatorImpl.cpp" /><ClCompile Include="..\src\PluginAuthenticator\PluginRegistrationManager.cpp" /><ClCompile Include="..\src\PluginAuthenticator\WebAuthnContractAssertions.cpp" /></ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+</Project>
