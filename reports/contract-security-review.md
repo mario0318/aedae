@@ -31,7 +31,7 @@ The official interface requires `CancelOperation` and `GetLockStatus`; its heade
 
 ### MEDIUM - the header check is presence-only, not a pinned ABI integrity gate
 
-Remediation implemented, pending security review: the verifier now pins SDK `10.0.26100.0`, compares both approved header hashes, verifies the stable interface IID and method order, and rejects unprefixed v2 declarations. `WebAuthnContractAssertions.cpp` adds x64 compile-time assertions for selected stable registration structure sizes and offsets. Future SDK re-pinning requires a new security review.
+Remediation implemented, pending security review: the verifier reads `WindowsTargetPlatformVersion` from the actual `AeDaePlugin.vcxproj` build input and requires the approved `10.0.26100.0` version before locating and hashing the headers. It compares all three approved header hashes, verifies the stable interface IID and method order, and rejects unprefixed v2 declarations. `WebAuthnContractAssertions.cpp` adds x64 compile-time assertions for selected stable registration structure sizes and offsets. The guard’s negative tests prove failure for a mismatched project SDK version and a deliberately mutated header copy. Future SDK re-pinning requires a new security review.
 
 ### MEDIUM - v2 experimental APIs carry ABI and buffer-binding risk
 
@@ -39,7 +39,7 @@ The v2 declarations change CLSID and transaction-ID pointer conventions. Its use
 
 ### MEDIUM - COM unload accounting is incomplete
 
-Remediation implemented for the bootstrap, pending security review: module-level live-object and server-lock accounting make `DllCanUnloadNow` return `S_FALSE` while a class factory, authenticator instance, or server lock is retained. The activation harness verifies the unload transitions. Future operation lifetime accounting remains a T-016 requirement.
+Remediation implemented for the bootstrap, pending security review: module-level live-object and server-lock accounting make `DllCanUnloadNow` return `S_FALSE` while a class factory, authenticator instance, or server lock is retained. The activation harness separately verifies factory/instance transitions and that a server lock alone keeps the DLL non-unloadable after its originating factory is released. This review covers bootstrap COM object and server-lock accounting only. Transaction, cancellation, completion, destruction, callback, and operation-lifetime races remain unimplemented and exclusively deferred to T-016.
 
 ## Required security invariants for the next implementation task
 
@@ -56,4 +56,4 @@ Remediation implemented for the bootstrap, pending security review: module-level
 
 ## Disposition
 
-No protocol or provider-registration implementation is approved. Close the two HIGH findings and the contract-integrity MEDIUM finding with design, implementation, and negative-test evidence before moving T-004 or any `MakeCredential`/`GetAssertion` task to implementation.
+T-014 remains `IN_REVIEW` and blocks protocol and provider-registration work. The two HIGH findings are unaddressed: the request-signature gate and transaction lifecycle must be approved and implemented under T-015/T-016. The bootstrap contract and COM-lifetime remediations require security-review approval; they do not close T-014 or authorize T-004, `MakeCredential`, or `GetAssertion`.

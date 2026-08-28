@@ -18,17 +18,26 @@ int wmain(int argc, wchar_t** argv)
     IClassFactory* factory = nullptr;
     if (FAILED(get_class_object(aedae::kPluginClsid, IID_IClassFactory, reinterpret_cast<void**>(&factory)))) return 4;
     if (can_unload_now() != S_FALSE) return 5;
+    factory->Release();
+    if (can_unload_now() != S_OK) return 6;
+
+    if (FAILED(get_class_object(aedae::kPluginClsid, IID_IClassFactory, reinterpret_cast<void**>(&factory)))) return 7;
     if (FAILED(factory->LockServer(TRUE))) return 6;
-    if (can_unload_now() != S_FALSE) return 7;
-    if (FAILED(factory->LockServer(FALSE))) return 8;
+    factory->Release();
+    if (can_unload_now() != S_FALSE) return 8;
+    if (FAILED(get_class_object(aedae::kPluginClsid, IID_IClassFactory, reinterpret_cast<void**>(&factory)))) return 9;
+    if (FAILED(factory->LockServer(FALSE))) return 10;
+    factory->Release();
+    if (can_unload_now() != S_OK) return 11;
+
+    if (FAILED(get_class_object(aedae::kPluginClsid, IID_IClassFactory, reinterpret_cast<void**>(&factory)))) return 12;
     IUnknown* instance = nullptr;
     const HRESULT result = factory->CreateInstance(nullptr, IID_IUnknown, reinterpret_cast<void**>(&instance));
-    if (FAILED(result) || instance == nullptr) return 9;
-    if (can_unload_now() != S_FALSE) return 10;
-    instance->Release();
-    if (can_unload_now() != S_FALSE) return 11;
+    if (FAILED(result) || instance == nullptr) return 13;
     factory->Release();
-    if (can_unload_now() != S_OK) return 12;
+    if (can_unload_now() != S_FALSE) return 14;
+    instance->Release();
+    if (can_unload_now() != S_OK) return 15;
     FreeLibrary(module);
     std::wcout << L"COM activation harness passed\n";
     return 0;

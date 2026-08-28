@@ -8,6 +8,8 @@ Status: present locally, implementation still gated on security review
 | Item | Value |
 | --- | --- |
 | SDK include revision | `10.0.26100.0` |
+| Build input | `build/AeDaePlugin.vcxproj` `WindowsTargetPlatformVersion` |
+| Architecture | `x64` |
 | WebAuthn dependency header | `C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\webauthn.h` |
 | Plugin API header | `C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\webauthnplugin.h` |
 | COM interface header | `C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\pluginauthenticator.h` |
@@ -23,7 +25,7 @@ The bootstrap and future protocol build target the pinned Windows SDK `10.0.2610
 
 - `IPluginAuthenticator` defines `MakeCredential`, `GetAssertion`, `CancelOperation`, and `GetLockStatus`.
 - Its pinned IID is `d26bcf6f-b54c-43ff-9f06-d5bf148625f7`; the method order is checked before compilation.
-- The x64 build statically checks selected registration-option structure sizes and offsets.
+- The x64 build statically checks `WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_OPTIONS` size `72`, `cbAuthenticatorInfo` offset `40`, `ppwszSupportedRpIds` offset `64`, `WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE` size `16`, and `pbOpSignPubKey` offset `8`.
 - `WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_OPTIONS` contains the authenticator name, CLSID, plugin RP ID, logo data, CBOR authenticator information, and supported RP list.
 - `WebAuthNPluginAddAuthenticator` and `WebAuthNPluginPerformUserVerification` are present.
 - Version-two declarations are present with the exact names `EXPERIMENTAL_WebAuthNPluginAddAuthenticator2` and `EXPERIMENTAL_WebAuthNPluginPerformUserVerification2`. They are not declared under the non-experimental names.
@@ -31,7 +33,7 @@ The bootstrap and future protocol build target the pinned Windows SDK `10.0.2610
 
 ## Contract guard
 
-`scripts/verify-webauthnplugin-contract.ps1` pins and compares all three required header hashes, checks the stable interface IID and method order, and rejects unprefixed v2 declarations. `scripts/build.ps1` runs it before compilation, so missing or substituted headers stop the build.
+`scripts/verify-webauthnplugin-contract.ps1` first binds the approved version to the plugin project’s `WindowsTargetPlatformVersion`, then pins and compares all three required header hashes, checks the stable interface IID and method order, and rejects unprefixed v2 declarations. `scripts/test-webauthnplugin-contract-guard.ps1` proves mismatched project SDK metadata and a mutated header copy fail closed. `scripts/build.ps1` runs both before compilation.
 
 ## Open security questions
 

@@ -1,7 +1,9 @@
 [CmdletBinding()]
 param([ValidateSet('Debug', 'Release')][string]$Configuration = 'Debug')
 
-& (Join-Path $PSScriptRoot 'verify-webauthnplugin-contract.ps1')
+& (Join-Path $PSScriptRoot 'verify-webauthnplugin-contract.ps1') -ProjectFile (Join-Path $PSScriptRoot '..\build\AeDaePlugin.vcxproj')
+if (-not $?) { exit 1 }
+& (Join-Path $PSScriptRoot 'test-webauthnplugin-contract-guard.ps1')
 if (-not $?) { exit 1 }
 
 $vswhere = 'C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe'

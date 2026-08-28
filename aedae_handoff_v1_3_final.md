@@ -379,9 +379,9 @@ STEP 12: T-013 — Package Readiness
 ### 6.1 Current State
 
 ```text
-WARNING: All files are still UNTRACKED
-There are NO COMMITS yet
-Including bootstrap sources
+Baseline committed and published: `ff78cf6` on `main`
+Repository: `https://github.com/mario0318/aedae`
+The bootstrap and its initial T-014 remediation are intentionally co-located in that baseline; all subsequent remediation work must use focused follow-up commits.
 ```
 
 ### 6.2 Required `.gitignore` (Corrected)
