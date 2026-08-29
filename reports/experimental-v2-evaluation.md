@@ -14,6 +14,22 @@ Evaluate whether the explicitly experimental v2 plugin APIs could support a non-
 - Fail-closed verification, cancellation binding, replay resistance, downgrade behavior, and no fallback to v1 or unprefixed APIs.
 - A separate security review and explicit human approval.
 
+## Pinned SDK observations
+
+The locked SDK `10.0.26100.0` declares `EXPERIMENTAL_WebAuthNPluginAddAuthenticator2` and `EXPERIMENTAL_WebAuthNPluginPerformUserVerification2`. The v2 registration options use `const CLSID* pClsid` and add `pwszUserVerificationKeyName`. The v2 user-verification request uses `const GUID* pGuidTransactionId` and a caller-owned `cbBufferToSign` / `pbBufferToSign` pair. These declarations establish no supported availability, enablement, signing algorithm, canonical serialization, or production suitability.
+
+## Proposed envelope, for evaluation only
+
+Any future prototype proposal must use a versioned canonical binary envelope that binds: envelope version, algorithm identifier, operation type, transaction GUID, RP ID, canonical challenge bytes and length, caller-context identifier, and an explicit anti-replay nonce or generation. Fields must be length-delimited, unambiguous, and rejected on duplicate, unknown-required, truncated, noncanonical, or unsupported values. This is a design hypothesis only, not an implementation authorization.
+
+## Threats and future negative tests
+
+- Truncated, reordered, partially bound, or ambiguously encoded fields must fail before UI, vault, or response work.
+- A transaction GUID, RP ID, operation-type, challenge, caller-context, algorithm, or version mismatch must fail closed.
+- Replay across transactions, RPs, operations, or provider generations must fail.
+- Any unavailable v2 capability, enablement failure, or downgrade attempt must fail closed with no v1, unsigned, or unprefixed fallback.
+- Cancellation must authenticate and bind to the same transaction and envelope generation.
+
 ## Prohibitions
 
 - Disabled by default.
