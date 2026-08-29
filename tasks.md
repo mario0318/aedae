@@ -143,6 +143,14 @@
 - Dependencies: T-014.
 - Done when: A security reviewer approves the state model and the test plan covers cancellation, lock-state, completion, destruction, and unload races.
 
+## T-017 – Experimental WebAuthn v2 evaluation decision record
+
+- Status: TODO
+- Owner: ARCHITECT
+- Scope: Non-production evaluation only of the explicitly experimental v2 plugin APIs, their supported Windows-build and enablement prerequisites, and a proposed caller-buffer signing envelope.
+- Output: `reports/experimental-v2-evaluation.md`.
+- Done when: The report documents prerequisites, threat model, exact proposed bindings, downgrade behavior, and a separate security-review and human go/no-go gate. It authorizes no production implementation or registration.
+
 ## Protocol implementation block
 
 T-004, T-007, T-008, and T-009 remain blocked. No task may implement WebAuthn decoding, credential storage, cryptographic signing, Windows Hello invocation, or experimental v2 APIs until T-014 through T-016 are approved and their implementation tasks pass security review.

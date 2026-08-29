@@ -1,6 +1,12 @@
 # Operation signature verification gate
 
-Status: design-only, not implemented
+Status: BLOCKED for stable v1, not implemented
+
+## Stable v1 decision
+
+T-015 applies only to the stable v1 contract. The reviewed headers and available documentation do not define the exact signed bytes, serialization, signature algorithm, or required bindings for `WEBAUTHN_PLUGIN_OPERATION_REQUEST`. Therefore no v1 request-signature verifier may be inferred, reverse engineered, or implemented. The HIGH request-authentication finding remains open.
+
+Experimental v2 APIs are out of scope for T-015. They are handled only by T-017 and remain prohibited from production use pending a separate security review and explicit human go/no-go decision.
 
 ## Rule
 
@@ -30,4 +36,3 @@ A future `IOperationSignatureVerifier` must accept only raw contract request dat
 ## Required tests
 
 See `tests/integration/OperationLifecycleTestPlan.md`. The implementation must prove a failed signature prevents decode, UI, Hello, vault access, metadata changes, and response emission.
-
