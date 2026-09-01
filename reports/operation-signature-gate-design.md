@@ -6,7 +6,10 @@ Status: BLOCKED for stable v1, not implemented
 
 T-015 applies only to the stable v1 contract. The reviewed headers and available documentation do not define the exact signed bytes, serialization, signature algorithm, or required bindings for `WEBAUTHN_PLUGIN_OPERATION_REQUEST`. Therefore no v1 request-signature verifier may be inferred, reverse engineered, or implemented. The HIGH request-authentication finding remains open.
 
-Experimental v2 APIs are out of scope for T-015. They are handled only by T-017 and remain prohibited from production use pending a separate security review and explicit human go/no-go decision.
+Experimental v2 APIs are out of scope for T-015 and prohibited by ADR-001. T-017 governs
+contract-manifest protection, not v2 evaluation. No v2 implementation or prototype task exists;
+any future non-production research proposal requires a separate ADR, security review, and explicit
+human go/no-go decision.
 
 ## Rule
 
