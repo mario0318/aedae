@@ -98,3 +98,5 @@ directly edit those four files. Agents may inspect them, run them, report findin
 proposal outside the protected paths. A human-approved pull request is required for any actual
 change. `.github/CODEOWNERS` and this `AGENTS.md` policy are themselves code-owner protected so the
 gate cannot be weakened by an unreviewed governance edit.
+
+<!-- T-017 rejection probe: this agent-authored change must not be mergeable without human review. -->
