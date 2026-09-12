@@ -91,3 +91,31 @@ Before publication, the isolated clean checkout passed:
 
 These local results validate the companion change but do not substitute for the first GitHub-hosted
 workflow run.
+
+## First hosted run: fail-closed SDK drift
+
+[GitHub Actions run 34666333286](https://github.com/mario0318/aedae/actions/runs/34666333286)
+executed both matrix jobs. In both Debug and Release:
+
+- checkout succeeded;
+- the `10.0.26100.0` include directory was present;
+- both build-wrapper rejection fixtures passed;
+- the protected contract verifier stopped before compilation because `webauthnplugin.h` hashed to
+  `91E7218EA4BDB54ECE36561D98155B0741D62CBC26940FDC7357E9D6F3D87AF7`, not the reviewed
+  `8B8897A5FE7D4575B5DE8287C7F0E79CED3D96CAF6D273BC7E473E225AC873B8`.
+
+This proves that the hosted image's directory label is not an immutable contract input. The red run
+must not be suppressed with `continue-on-error`, and the protected manifest must not be silently
+repinned. Microsoft publishes archived 26100 SDK installers, but using one in CI requires a separate
+decision about download integrity, extraction versus installation, caching, and runner cost.
+
+Acceptable resolution paths are:
+
+1. approve a hash-pinned official archived SDK payload, extract it into the ephemeral workspace,
+   verify the three header hashes before use, and configure MSBuild to consume the same payload;
+2. approve a secured self-hosted runner whose SDK bytes match the manifest; or
+3. conduct a new architecture/security review of the current Microsoft header bytes and have a
+   human author the protected manifest update.
+
+Until one is approved, the CI is correctly red and T-018 remains in progress. The local matching-SDK
+build evidence does not override the independent runner mismatch.
