@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contract-build-test:
+    name: ${{ matrix.configuration }} x64
+    runs-on: windows-2025
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        configuration:
+          - Debug
+          - Release
+
+    steps:
+      - name: Check out pinned revision
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Verify pinned Windows SDK is installed
+        shell: pwsh
+        run: |
+          $include = Join-Path ${env:ProgramFiles(x86)} 'Windows Kits\10\Include\10.0.26100.0\um'
+          if (-not (Test-Path -LiteralPath $include -PathType Container)) {
+            throw "Pinned Windows SDK 10.0.26100.0 is unavailable at $include"
+          }
+
+      - name: Prove contract-gate failures stop the build
+        shell: pwsh
+        run: .\tests\unit\Test-BuildWrapper.ps1
+
+      - name: Run contract gates, build, and tests
+        shell: pwsh
+        run: .\scripts\build.ps1 -Configuration ${{ matrix.configuration }}
