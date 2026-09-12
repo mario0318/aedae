@@ -17,6 +17,15 @@ const rejects = (action, pattern, label) => {
 
 validateSurfaceRegistry(surfaces);
 check(true, 'production claim registry accepted');
+
+const siteSource = await readFile('src/site.mjs', 'utf8');
+const taskSource = await readFile('../tasks.md', 'utf8');
+const referencedTasks = [...new Set([...siteSource.matchAll(/\bT-\d{3}\b/g)].map(match => match[0]))];
+for (const task of referencedTasks) {
+  check(new RegExp(`^##+ ${task}\\b`, 'm').test(taskSource), `site citation exists: ${task}`);
+}
+check(new Set(Object.values(surfaces).map(surface => surface.glyph)).size === Object.keys(surfaces).length,
+  'every surface has a distinct form of the shared glyph skeleton');
 rejects(() => validateClaim('verified', ''), /no source/, 'unsourced claim rejected directly');
 rejects(() => validateClaim('built', 'tasks.md'), /refused status/, 'built status rejected directly');
 rejects(() => validateClaim('invented', 'tasks.md'), /invalid status/, 'unknown status rejected directly');

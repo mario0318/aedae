@@ -25,6 +25,7 @@ a:focus-visible,summary:focus-visible{outline:3px solid var(--focus);outline-off
 .hero p{max-width:52ch;font-size:1.15rem}
 .specimen{min-height:260px;border:1px solid var(--rule);background-image:linear-gradient(#00000010 1px,transparent 1px),linear-gradient(90deg,#00000010 1px,transparent 1px);background-size:18px 18px;position:relative;padding:1rem;display:flex;align-items:center;justify-content:center}
 .glyph{color:var(--accent);font-size:clamp(7rem,20vw,13rem);font-weight:700;letter-spacing:-.18em;line-height:.7;position:relative}
+.glyph-online{font-size:clamp(6rem,13vw,8rem)}
 .glyph::after{content:"24 · 56 · 104 / baseline 50";position:absolute;top:125%;left:0;font:10px ui-monospace,"Cascadia Code",monospace;letter-spacing:0;white-space:nowrap;color:var(--quiet)}
 .metrics{font:11px ui-monospace,"Cascadia Code",monospace;color:var(--quiet);border-top:1px solid var(--rule);margin:0;padding:.6rem 0}
 .section{border-top:1px solid var(--rule);padding:2.5rem 0;max-width:760px}
