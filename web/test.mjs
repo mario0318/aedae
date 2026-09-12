@@ -67,5 +67,11 @@ for (const status of ['verified', 'specified', 'research', 'horizon', 'practice'
   check(contrast(token(dark, `status-${status}`), token(dark, 'mineral')) >= 4.5,
     `${status} status meets dark-mode text contrast`);
 }
+for (const surface of ['tech', 'world', 'life', 'live', 'online']) {
+  check(contrast(token(root, surface), token(root, 'mineral')) >= 4.5,
+    `${surface} accent meets light-mode small-text contrast`);
+  check(contrast(token(dark, surface), token(dark, 'mineral')) >= 4.5,
+    `${surface} accent meets dark-mode small-text contrast`);
+}
 
 console.log(`${assertions} focused website assertions passed`);
