@@ -5,8 +5,8 @@ export const surfaces = {
     title: 'A personal authenticator for This PC',
     lead: 'A Windows personal authenticator being specified with the gates on. Nothing is available to install yet.',
     facts: [
-      {heading: 'What is true now', body: 'The repository contains a bootstrap COM skeleton, package layout, and contract checks. Those items remain in review.', status: 'verified', source: 'README.md; tasks.md'},
-      {heading: 'What is specified', body: 'The design calls for local credential storage, Windows Hello verification before assertions, and fail-closed request handling. None of those capabilities is implemented.', status: 'specified', source: 'security.md; functional.md; tasks.md'},
+      {heading: 'What is true now', body: 'The repository contains a bootstrap COM skeleton, a synthetic-only local store, a random-buffer DPAPI key-protection primitive, and contract checks. Each remains limited to its recorded review scope.', status: 'verified', source: 'README.md; tasks.md T-005, T-006, T-014'},
+      {heading: 'What is specified', body: 'The design calls for Windows Hello verification before assertions and fail-closed authenticated request handling. Those protocol capabilities are not implemented.', status: 'specified', source: 'security.md; functional.md; tasks.md T-007, T-015'},
       {heading: 'What remains open', body: 'The public plugin contract does not define the operation-signing envelope needed to complete request-authentication design.', status: 'research', source: 'tasks.md T-019; reports/operation-signature-gate-design.md'}
     ],
     links: [['this-pc', 'This PC, in plain language'], ['security', 'Security boundaries'], ['build', 'Build gates'], ['colophon', 'Colophon']]
