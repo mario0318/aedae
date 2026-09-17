@@ -82,3 +82,19 @@ A task can be marked `DONE` only when:
 - The diff stays within its authorized scope.
 - Security review approves sensitive changes.
 - The human owner approves the final pull request for milestone merges.
+
+## Human-approval-only contract files
+
+The following files define or enforce the pinned Windows WebAuthn Plugin ABI contract and may be
+changed only through a pull request approved by the human code owner named in `.github/CODEOWNERS`:
+
+- `reports/webauthnplugin-abi-manifest.json`
+- `scripts/ContractCheck.psm1`
+- `scripts/verify-webauthnplugin-contract.ps1`
+- `scripts/test-webauthnplugin-contract-guard.ps1`
+
+No agent role, including Planner, Architect, Coder, Tester, Security reviewer, or Packager, may
+directly edit those four files. Agents may inspect them, run them, report findings, and draft a
+proposal outside the protected paths. A human-approved pull request is required for any actual
+change. `.github/CODEOWNERS` and this `AGENTS.md` policy are themselves code-owner protected so the
+gate cannot be weakened by an unreviewed governance edit.

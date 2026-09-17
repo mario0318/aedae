@@ -17,4 +17,29 @@ function Invoke-AeDaeHeaderCheck {
     if(-not $auth.Contains('IPluginAuthenticator')){throw 'Missing IPluginAuthenticator token.'}; $iid='MIDL_INTERFACE("'+$manifest.stableInterface.iid+'")';$start=$auth.IndexOf($iid);if($start -lt 0){throw 'Unexpected IPluginAuthenticator IID declaration.'};$end=$auth.IndexOf('    };',$start);if($end -lt 0){throw 'Unexpected IPluginAuthenticator declaration terminator.'};$body=$auth.Substring($start,$end-$start);$last=-1;foreach($m in $manifest.stableInterface.methods){$p=$body.IndexOf("$m(");if($p -lt 0 -or $p -le $last){throw 'Unexpected IPluginAuthenticator operation method order.'};$last=$p}
     foreach($symbol in $manifest.forbiddenUnprefixedSymbols){if($plugin -match "(?<!EXPERIMENTAL_)$([regex]::Escape($symbol))\("){throw "Unprefixed experimental API detected: $symbol"}}
 }
-Export-ModuleMember -Function Invoke-AeDaeProjectSdkCheck, Invoke-AeDaeHeaderCheck
+function Invoke-AeDaeSourceCheck {
+    # ADR-001: EXPERIMENTAL_-prefixed APIs are compile-time prohibited. The header check proves the
+    # SDK still prefixes them; this proves our own sources never reference one. See
+    # reports/lifecycle-security-review.md F8 and tasks.md T-018 MED-05.
+    param([string]$Root)
+    $targets = @()
+    $srcRoot = Join-Path $Root 'src'
+    if (Test-Path $srcRoot) { $targets += Get-ChildItem $srcRoot -Recurse -File }
+    foreach ($dir in @('build', 'artifacts')) {
+        $path = Join-Path $Root $dir
+        if (Test-Path $path) { $targets += Get-ChildItem $path -Recurse -File -Include '*.map', '*.vcxproj', '*.props', '*.def' }
+    }
+    foreach ($file in $targets) {
+        if (Select-String -LiteralPath $file.FullName -Pattern 'EXPERIMENTAL_' -SimpleMatch -Quiet -ErrorAction SilentlyContinue) {
+            throw "Prohibited EXPERIMENTAL_ API reference (ADR-001) in: $($file.FullName)"
+        }
+        # ADR-002: SQLite is not an approved dependency. The amalgamation may still sit untracked
+        # under external/, so a prose ban is not enough — fail the build on any reference to it.
+        foreach ($token in @('sqlite3.h', 'sqlite3.c', 'sqlite3ext.h', 'sqlite-amalgamation')) {
+            if (Select-String -LiteralPath $file.FullName -Pattern $token -SimpleMatch -Quiet -ErrorAction SilentlyContinue) {
+                throw "Prohibited SQLite dependency reference (ADR-002) in: $($file.FullName)"
+            }
+        }
+    }
+}
+Export-ModuleMember -Function Invoke-AeDaeProjectSdkCheck, Invoke-AeDaeHeaderCheck, Invoke-AeDaeSourceCheck

@@ -1,0 +1,9 @@
+# Pinned WebAuthn Plugin ABI contract: human-owner review is mandatory.
+/reports/webauthnplugin-abi-manifest.json @mario0318
+/scripts/ContractCheck.psm1 @mario0318
+/scripts/verify-webauthnplugin-contract.ps1 @mario0318
+/scripts/test-webauthnplugin-contract-guard.ps1 @mario0318
+
+# Protect the enforcement policy itself.
+/.github/CODEOWNERS @mario0318
+/AGENTS.md @mario0318

@@ -1,0 +1,89 @@
+TASK: yes so do it all
+MODE: first-pass
+FILES_TOUCHED: tests/unit/VaultStoreTests.cpp (deterministic reproducer only); no production patch yet.
+CONSTRAINTS: Read only this packet, no tools or edits. Synthetic non-key buffers only. No credentials, DPAPI, Hello, plugin integration, dependencies or production release. Current ADR explicitly requires MoveFileEx with replace-existing; human approval requested to replace it with handle-bound rename and cleanup. Assess the proposed boundary change; no approval has been recorded. Existing broader review remains pending. Return structured finding array with severity,file,line,issue,evidence,suggested_fix then summary. Source excerpt line numbers are not authoritative; identify functions where needed.
+FINDING: Successfully created temp is closed before pathname-based rename/cleanup. Same-user noncooperating access can substitute it.
+PROPOSED STRATEGY: hold original exclusive CREATE_NEW handle with DELETE rights across FileRenameInfo replacement and use FileDispositionInfo on that same handle on failure. No pathname cleanup fallback. Existing schema/mutex/recovery/public results unchanged. Do not infer universal same-user tampering or power-loss guarantees.
+CONTEXT: ACL validates opened owner/DACL, trusts current user/SYSTEM/Administrators, rejects unexpected write grants, hardlinks and file reparse points. Parent directory handle includes FILE_LIST_DIRECTORY without delete sharing and mutex covers whole directory.
+SOURCE:
+void DiscardTemp(const Context& c)
+{
+    const auto path = c.path + L".tmp";
+    Handle file(CreateFileW(path.c_str(), DELETE | READ_CONTROL | FILE_READ_ATTRIBUTES, 0,
+        nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT, nullptr));
+    if (file.value == INVALID_HANDLE_VALUE)
+    {
+        Require(GetLastError() == ERROR_FILE_NOT_FOUND);
+        return;
+    }
+    CheckFile(file.value, false);
+    FILE_DISPOSITION_INFO info{TRUE};
+    Require(SetFileInformationByHandle(file.value, FileDispositionInfo, &info, sizeof(info)) != FALSE);
+}
+void Commit(const Context& context, const std::vector<CredentialRecord>& records)
+{
+    Validate(records);
+    Encoder e;
+    for (char c : std::string("AEDVAULT")) e.Number(static_cast<BYTE>(c));
+    e.Number(kSchema); e.Number(static_cast<unsigned>(records.size()));
+    for (const auto& r : records)
+    {
+        e.Number(kSchema);
+        e.Text(r.id); e.Text(r.rp_id); e.Text(r.account_label);
+        e.Blob(r.user_handle); e.Blob(r.credential_id); e.Blob(r.public_key_cose);
+        e.Blob(r.protected_private_key);
+        e.Number(r.created_at); e.Number(r.last_used_at);
+        e.Text(r.user_verification_policy); e.Text(r.origin_source); e.Text(r.backup_status);
+    }
+    DiscardTemp(context);
+    Security security;
+    const auto temp = context.path + L".tmp";
+    struct Cleanup
+    {
+        std::wstring path;
+        bool created{};
+        bool committed{};
+        // A failed CREATE_NEW does not give us ownership of the existing pathname.
+        ~Cleanup() { if (created && !committed) DeleteFileW(path.c_str()); }
+    } cleanup{temp};
+    Checkpoint("before-temp-create");
+    {
+        Handle file(CreateFileW(temp.c_str(), GENERIC_WRITE | READ_CONTROL,
+            0, &security.attributes, CREATE_NEW, FILE_FLAG_OPEN_REPARSE_POINT, nullptr));
+        Require(file.value != INVALID_HANDLE_VALUE);
+        cleanup.created = true;
+        CheckFile(file.value, false);
+        Checkpoint("temp-created");
+        DWORD written{};
+        const DWORD prefix = static_cast<DWORD>(e.bytes.size() / 2);
+        Require(WriteFile(file.value, e.bytes.data(), prefix,
+            &written, nullptr) != FALSE && written == prefix);
+        Checkpoint("partial-write");
+        const DWORD remainder = static_cast<DWORD>(e.bytes.size()) - prefix;
+        Require(WriteFile(file.value, e.bytes.data() + prefix, remainder,
+            &written, nullptr) != FALSE && written == remainder);
+        Checkpoint("written");
+        Require(FlushFileBuffers(file.value) != FALSE);
+        Checkpoint("flushed");
+    }
+    Checkpoint("before-rename");
+    Require(MoveFileExW(temp.c_str(), context.path.c_str(),
+        MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH) != FALSE);
+    cleanup.committed = true;
+    Checkpoint("renamed");
+}
+
+CALLERS: Provision commits empty if missing; Migrate calls Load then Commit and maps failure to migration_failed; CRUD loads, mutates, Commit. Recover validates Load then DiscardTemp.
+TESTS (current vulnerable source; PASS REPRO means vulnerability confirmed, NOT safe):
+PASS substitution legitimate baseline
+PASS source temp can be replaced at actual boundary
+PASS REPRO commit reports success publishing substituted bytes
+PASS substitution legitimate baseline
+PASS substitution symlink fixture
+PASS source temp can be replaced at actual boundary
+PASS REPRO commit publishes substituted symlink
+PASS substitution legitimate baseline
+PASS substitution cleanup failure fixture
+PASS source temp can be replaced at actual boundary
+PASS REPRO failed commit deletes substituted temp
+Synthetic reproduction fixtures: "C:\\Users\\Mario\\AppData\\Local\\Temp\\aedae-review-36116-209428765"

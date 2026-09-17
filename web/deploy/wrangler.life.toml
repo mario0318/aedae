@@ -1,0 +1,4 @@
+name = "aedae-life"
+compatibility_date = "2026-09-01"
+send_metrics = false
+pages_build_output_dir = "../preview/pages/life"
