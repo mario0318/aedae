@@ -105,7 +105,7 @@ const body = (surfaceKey, surface, content) => `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="description" content="${surface.lead}"><title>${surface.name} — ${surface.title}</title>
 <link rel="stylesheet" href="/assets/styles.css"></head>
-<body style="--accent:${surface.accent}"><a class="skip" href="#main">Skip to content</a><div class="shell">
+<body class="surface-${surfaceKey}"><a class="skip" href="#main">Skip to content</a><div class="shell">
 <nav class="nav" aria-label="aeDae surfaces"><a class="mark" href="/${surfaceKey}/" aria-label="${surface.name} home">æDæ</a>${Object.entries(surfaces).map(([key, item]) => `<a ${key === surfaceKey ? 'aria-current="page"' : ''} href="/${key}/">${item.name}</a>`).join('')}</nav>
 <main id="main">${content}</main>
 <footer>Product state, security claims, and build status are authoritative on <a href="/tech/">aedae.tech</a> only. This site sets no cookies, uses no analytics, and has no third-party embeds.</footer>

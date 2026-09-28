@@ -9,8 +9,11 @@ Run `node test.mjs`, then `node build.mjs`. The tests exercise claim-validation 
 the build validates structured claims, page structure, internal links, and prohibited runtime
 features before writing 15 generated pages to `dist/`.
 
-Nothing in this directory deploys, changes DNS, sends email, loads third-party assets, or collects
-visitor data.
+The optional `deploy/` directory prepares five local Cloudflare Pages preview bundles. Run
+`powershell -NoProfile -ExecutionPolicy Bypass -File deploy/prepare.ps1` for a network-free check.
+It does not authenticate, upload, bind a domain, change DNS, send email, load third-party assets,
+or collect visitor data. Publishing temporary `*.pages.dev` previews is a separately authorized
+operator action using `deploy/deploy.ps1` after local preparation and review.
 
 ## Claim statuses
 
