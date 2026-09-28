@@ -1,5 +1,5 @@
 import {readFile} from 'node:fs/promises';
-import {surfaces, validateClaim, validateStaticStylesheet, validateSurfaceRegistry} from './src/site.mjs';
+import {render, surfaces, validateClaim, validateStaticStylesheet, validateSurfaceRegistry} from './src/site.mjs';
 
 let assertions = 0;
 const check = (condition, label) => {
@@ -26,6 +26,11 @@ for (const task of referencedTasks) {
 }
 check(new Set(Object.values(surfaces).map(surface => surface.glyph)).size === Object.keys(surfaces).length,
   'every surface has a distinct form of the shared glyph skeleton');
+for (const surface of Object.keys(surfaces)) {
+  const rendered = render(surface, 'index');
+  check(rendered.includes(`<body class="surface-${surface}">`), `${surface} renders a stylesheet-owned accent class`);
+  check(!rendered.includes('<body style='), `${surface} avoids CSP-blocked inline body styles`);
+}
 rejects(() => validateClaim('verified', ''), /no source/, 'unsourced claim rejected directly');
 rejects(() => validateClaim('built', 'tasks.md'), /refused status/, 'built status rejected directly');
 rejects(() => validateClaim('invented', 'tasks.md'), /invalid status/, 'unknown status rejected directly');

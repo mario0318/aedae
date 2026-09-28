@@ -9,6 +9,11 @@
 *{box-sizing:border-box}
 html{background:var(--mineral);color:var(--ink)}
 body{margin:0;line-height:1.55;font-size:17px}
+body.surface-tech{--accent:var(--tech)}
+body.surface-world{--accent:var(--world)}
+body.surface-life{--accent:var(--life)}
+body.surface-live{--accent:var(--live)}
+body.surface-online{--accent:var(--online)}
 a{color:inherit;text-decoration-thickness:2px;text-underline-offset:3px}
 a:hover{color:var(--accent)}
 a:focus-visible,summary:focus-visible{outline:3px solid var(--focus);outline-offset:4px}
