@@ -2,9 +2,12 @@
 param([ValidateSet('Debug', 'Release')][string]$Configuration = 'Debug')
 $ErrorActionPreference = 'Stop'
 
-& (Join-Path $PSScriptRoot 'verify-webauthnplugin-contract.ps1')
+# PowerShell scripts do not reliably initialize LASTEXITCODE. Run each gate in a fresh process so
+# success is explicitly zero and any nonzero exit is preserved before compilation can begin.
+$powershell = (Get-Process -Id $PID).Path
+& $powershell -NoProfile -File (Join-Path $PSScriptRoot 'verify-webauthnplugin-contract.ps1')
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-& (Join-Path $PSScriptRoot 'test-webauthnplugin-contract-guard.ps1')
+& $powershell -NoProfile -File (Join-Path $PSScriptRoot 'test-webauthnplugin-contract-guard.ps1')
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 $vswhere = 'C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe'
