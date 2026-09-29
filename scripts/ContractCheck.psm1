@@ -30,13 +30,13 @@ function Invoke-AeDaeSourceCheck {
         if (Test-Path $path) { $targets += Get-ChildItem $path -Recurse -File -Include '*.map', '*.vcxproj', '*.props', '*.def' }
     }
     foreach ($file in $targets) {
-        if (Select-String -LiteralPath $file.FullName -Pattern 'EXPERIMENTAL_' -SimpleMatch -Quiet -ErrorAction SilentlyContinue) {
+        if (Select-String -LiteralPath $file.FullName -Pattern 'EXPERIMENTAL_' -SimpleMatch -Quiet -ErrorAction Stop) {
             throw "Prohibited EXPERIMENTAL_ API reference (ADR-001) in: $($file.FullName)"
         }
         # ADR-002: SQLite is not an approved dependency. The amalgamation may still sit untracked
         # under external/, so a prose ban is not enough — fail the build on any reference to it.
         foreach ($token in @('sqlite3.h', 'sqlite3.c', 'sqlite3ext.h', 'sqlite-amalgamation')) {
-            if (Select-String -LiteralPath $file.FullName -Pattern $token -SimpleMatch -Quiet -ErrorAction SilentlyContinue) {
+            if (Select-String -LiteralPath $file.FullName -Pattern $token -SimpleMatch -Quiet -ErrorAction Stop) {
                 throw "Prohibited SQLite dependency reference (ADR-002) in: $($file.FullName)"
             }
         }
