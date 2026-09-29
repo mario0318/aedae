@@ -30,3 +30,6 @@ credentials.json
 *.config.local
 
 external/Windows-classic-samples/
+
+# Linked git worktrees checked out inside the repo root (e.g. review sandboxes)
+.t020-review/

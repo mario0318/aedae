@@ -1,0 +1,32 @@
+Looking at this packet, I need to assess the TOCTOU vulnerability in the vault store's `Commit` function and evaluate the proposed mitigation strategy.
+
+```json
+[
+  {
+    "severity": "high",
+    "file": "src/Vault/VaultStore.cpp",
+    "line": null,
+    "issue": "TOCTOU window between temp file close and pathname-based rename allows same-user substitution",
+    "evidence": "Handle closes at end of scope before MoveFileExW; Cleanup destructor uses DeleteFileW on pathname. Tests labeled 'PASS REPRO' confirm substituted bytes published and substituted symlink published.",
+    "suggested_fix": "Hold CREATE_NEW handle with DELETE rights open; use FileRenameInfo for atomic replacement; use FileDispositionInfo on same handle for cleanup on failure. No pathname-based fallback."
+  },
+  {
+    "severity": "medium",
+    "file": "src/Vault/VaultStore.cpp",
+    "line": null,
+    "issue": "Cleanup destructor deletes by pathname after handle released, allowing attacker-controlled file deletion",
+    "evidence": "PASS REPRO test 'failed commit deletes substituted temp' confirms the vulnerability path.",
+    "suggested_fix": "Mark file for delete-on-close via FileDispositionInfo on the original handle before releasing it, rather than pathname-based DeleteFileW in destructor."
+  },
+  {
+    "severity": "info",
+    "file": "reports/ADR-002-single-file-vault-store.md",
+    "line": null,
+    "issue": "ADR mandates MoveFileEx with replace-existing; proposed strategy requires ADR amendment before implementation",
+    "evidence": "Constraints note 'Current ADR explicitly requires MoveFileEx with replace-existing; human approval requested to replace it with handle-bound rename and cleanup.'",
+    "suggested_fix": "Record explicit human approval to amend ADR before implementing FileRenameInfo-based approach."
+  }
+]
+```
+
+The proposed mitigation is sound. Holding the original `CREATE_NEW` handle open with `DELETE` rights and using `FileRenameInfo` for the replacement eliminates the TOCTOU window entirely—the kernel operates on the handle's file object, not the pathname. The same handle can set `FileDispositionInfo` on failure, avoiding the pathname-based `DeleteFileW` in the destructor that the third REPRO test exploits. The existing ACL checks, mutex, and parent-directory handle provide defense in depth but cannot close a window that exists in kernel transition between user-mode calls. The strategy correctly avoids overpromising—same-user tampering within process is inherently limited by what the process can observe, and power-loss atomicity depends on filesystem journaling guarantees outside this code's control.

@@ -1,5 +1,5 @@
 import {readFile} from 'node:fs/promises';
-import {render, surfaces, validateClaim, validateStaticStylesheet, validateSurfaceRegistry} from './src/site.mjs';
+import {render, surfaces, validateClaim, validateRenderedPage, validateStaticStylesheet, validateSurfaceRegistry} from './src/site.mjs';
 
 let assertions = 0;
 const check = (condition, label) => {
@@ -46,6 +46,32 @@ adjacentSourceTrap.tech.facts[0].source = '';
 adjacentSourceTrap.tech.facts[1].source = 'later source must not satisfy the first claim';
 rejects(() => validateSurfaceRegistry(adjacentSourceTrap), /tech fact 0 has no source/,
   'later claim source cannot satisfy an unsourced earlier claim');
+adjacentSourceTrap.tech.facts[0].source = surfaces.tech.facts[0].source;
+validateSurfaceRegistry(adjacentSourceTrap);
+check(true, 'unsourced claim passes after its own source is restored');
+
+const builtStatusTrap = structuredClone(surfaces);
+builtStatusTrap.tech.facts[0].status = 'built';
+rejects(() => validateSurfaceRegistry(builtStatusTrap), /refused status/, 'built claim rejected in registry');
+builtStatusTrap.tech.facts[0].status = surfaces.tech.facts[0].status;
+validateSurfaceRegistry(builtStatusTrap);
+check(true, 'built claim passes after approved status is restored');
+
+const validPage = '<!doctype html><html><body><h1>Record</h1></body></html>';
+validateRenderedPage(validPage, '/negative-fixture/');
+check(true, 'clean rendered-page fixture accepted');
+validateRenderedPage(validPage.replace('<body>', '<head><link rel="icon" href="data:image/svg+xml,%3Csvg viewBox=\'0 0 1 1\'/%3E"></head><body>'), '/negative-fixture/');
+check(true, 'embedded favicon is accepted without a network dependency');
+rejects(
+  () => validateRenderedPage(validPage.replace('Record', 'aedae_handoff_v1_3_final.md'), '/negative-fixture/'),
+  /prohibited token/,
+  'prohibited handoff citation rejected in rendered page'
+);
+rejects(
+  () => validateRenderedPage(validPage.replace('<h1>', '<main data-status="built"><h1>'), '/negative-fixture/'),
+  /prohibited pattern/,
+  'data-status built rejected in rendered page'
+);
 
 const css = await readFile('src/styles.css', 'utf8');
 for (const selector of ['.mark', '.nav a']) {

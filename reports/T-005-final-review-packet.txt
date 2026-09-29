@@ -1,0 +1,51 @@
+TASK: Final read-only security review of the owner-approved T-005 handle-bound commit repair. Identify a concrete remaining temp-object substitution, cleanup target-confusion, data-loss, or claim mismatch. Do not edit files or perform actions.
+MODE: second-pass
+FILES_TOUCHED:
+  - src/Vault/VaultStore.cpp
+  - tests/unit/VaultStoreTests.cpp
+  - reports/ADR-002-single-file-vault-store.md
+  - reports/T-005-handle-commit-fix.md
+  - tasks.md
+DIFF:
+Commit now creates vault.bin.tmp with GENERIC_WRITE | READ_CONTROL | DELETE, share mode 0,
+CREATE_NEW and FILE_FLAG_OPEN_REPARSE_POINT. It retains that exact handle through CheckFile,
+both WriteFile calls, FlushFileBuffers and SetFileInformationByHandle(FileRenameInfo). The rename
+buffer has offsetof(FILE_RENAME_INFO, FileName) + nameBytes + sizeof(wchar_t) zero-initialized
+storage, ReplaceIfExists TRUE, RootDirectory nullptr, FileNameLength excluding the terminator, and
+the canonical absolute destination from the checked/open directory. HandleCleanup is declared
+after Handle, so it runs before handle close; on failure it calls FileDispositionInfo on that live
+handle and has no pathname fallback. The directory handle requests FILE_LIST_DIRECTORY and omits
+FILE_SHARE_DELETE.
+
+Tests now enforce the three original before-rename attacks as blocked and use a separately launched
+process for swap attempts on every Commit caller: Provision, legacy Migrate, AddCredential,
+UpdateLastUsed and DeleteCredential. Each legitimate call must then succeed and its resulting
+snapshot must parse with expected state. Existing crash tests cover temp-created, partial-write,
+written, flushed, before-rename and renamed for CRUD and migration.
+
+ADR-002 now describes the verified absolute-destination FileRenameInfo form. The proposed
+RootDirectory-relative form was rejected after returning ERROR_INVALID_PARAMETER 87 on this host.
+TESTS:
+- Pre-fix --test-substitution: exit 1 after reproducing arbitrary bytes, symlink publication, and
+  deletion of a substituted temp.
+- Current Release --test-substitution: exit 0; three blocked-attack expectations passed.
+- Current full Release wrapper: exit 0, zero warnings/errors; contract gates, solution build, COM,
+  full vault, and management-model suites passed.
+- Full vault: 12 crash cases and 5 independent-process caller attacks passed.
+- Hooks-disabled Release build and ordinary suite: exit 0.
+- Build wrapper rejection regression: exit 0; both negative fixtures produced required exit 23.
+- git diff --check: exit 0.
+ORIGINAL_FINDINGS:
+[{"severity":"high","issue":"pathname MoveFileEx could publish a substituted temp"},{"severity":"medium","issue":"pathname cleanup could delete an attacker's replacement"},{"severity":"medium","issue":"ADR claimed a relative rename although implementation used absolute destination"}]
+APPLIED_FIXES:
+- Both source and cleanup now operate through the retained exact handle.
+- Independent-process coverage exercises every Commit caller.
+- ADR corrected to the tested absolute canonical destination and documents error 87 rejection.
+CONSTRAINTS:
+- Synthetic non-secret records only. No real credentials, DPAPI, Hello, plugin, protocol or signing.
+- Local NTFS evidence only; do not infer network/unusual filesystem support.
+- Process-kill crash tests do not prove power-loss durability.
+- Foreign-owner on-disk fixture remains unavailable due Win32 1307; descriptor validator coverage
+  is not an integration pass.
+- T-005 must remain IN_PROGRESS pending formal independent security and human milestone approval.
+- Return the required JSON finding array followed by a short prose summary. Review only.

@@ -1,0 +1,43 @@
+﻿I've now reviewed the packet and relevant files. Let me compile my findings.
+
+```json
+[
+  {
+    "severity": "info",
+    "scope": "T-020 website",
+    "finding": "Evidence supports approval readiness. Test suite covers 45 assertions including adjacent-source false-positive rejection, single-h1 enforcement, status/accent contrast in both light and dark modes, and 44px navigation targets. Build produces 15 pages across 5 surfaces. Playwright responsive checks at 1440/1024/390 are claimed. The validation code in test.mjs and site.mjs correctly rejects unsourced claims, built status, and markup in sources. No deployment files present. Repeat independent UX review and human PR approval remain required per the stated gate."
+  },
+  {
+    "severity": "medium",
+    "scope": "T-014/T-018 contract scripts CI",
+    "finding": "Hosted CI fails closed because GitHub windows-2025 runner exposes webauthnplugin.h hash 91E7218... while the reviewed manifest expects 8B8897A... from SDK 10.0.26100.0. The contract verifier correctly refuses to proceed. The failure is design-intentional: repin is not authorized without human code-owner approval. MED-02, MED-03, MED-04 findings remain partially addressed, with CI matrix present but red. Human code-owner approval of the protected-script diff and SDK-source resolution decision are required before merge."
+  },
+  {
+    "severity": "info",
+    "scope": "T-013 packaging",
+    "finding": "Evidence states two deterministic Release packages with matching SHA-256 192871d6839a243343ab1e56e70c52d0dc94e2901f16603b03dcf0006d318fb6, MakeAppx 10.0.26100.7705 unpack success, timestamp-normalizer atomicity and EOCD false-positive repairs, and Claude second-pass returned no findings. The unsigned developer-bootstrap scope is correctly bounded. Human approval is recorded as 2026-09-13. No additional issues identified from stated evidence."
+  },
+  {
+    "severity": "info",
+    "scope": "T-010/T-011 UI",
+    "finding": "Independent rereview returned APPROVE, human acceptance recorded 2026-09-13. Documented limitation of no direct dark/high-contrast, 200% scale, keyboard/focus, UIA, or screen-reader inspection remains accurate. Approval correctly excludes live data, Hello, vault, credentials, registration, signing, and publishing."
+  },
+  {
+    "severity": "medium",
+    "scope": "Baseline T-001/T-002/T-003",
+    "finding": "IN_REVIEW status persists due to: (1) missing spec/ directory conflict unresolved, (2) incomplete sample-mapping review history, and (3) unresolved IUnknown-only vs official IPluginAuthenticator bootstrap scope. These require architectural decision and human disposition, not agent-autonomous resolution."
+  },
+  {
+    "severity": "high",
+    "scope": "T-019 protocol pause",
+    "finding": "Microsoft SDK release notes confirm v2 structs WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_OPTIONS_2, WEBAUTHN_PLUGIN_UPDATE_AUTHENTICATOR_DETAILS_2, and WEBAUTHN_PLUGIN_USER_VERIFICATION_REQUEST_2 graduated from EXPERIMENTAL_ prefix in SDK 10.0.28000.1721 (March 2026). However, no documentation of the operation-signing envelope (pbEncodedRequest byte sequence, transaction binding, cancellation authentication) appears in SDK headers or documentation. The microsoft/webauthn README still directs clarifications to fido-dev@microsoft.com. The v2 stabilization does not resolve the envelope question; T-015/protocol lane remains correctly paused pending Microsoft's authoritative answer on G1/G2/G3."
+  },
+  {
+    "severity": "info",
+    "scope": "external/sqlite-amalgamation-3530400",
+    "finding": "The packet correctly notes this untracked directory is not an approved dependency. ContractCheck.psm1 already scans for and rejects SQLite references per ADR-002. No source file references it."
+  }
+]
+```
+
+**Summary:** T-020 website, T-010/T-011 UI, and T-013 packaging evidence is consistent with their documented approval gates—all three await or have received human approval only. T-014/T-018 contract CI correctly fails closed on SDK hash mismatch; the divergence is a GitHub runner environment issue, not a contract regression. The protocol pause remains appropriate: while SDK 10.0.28000.1721 stabilized the v2 structures, no Microsoft SDK release note or webauthn repository update documents the operation-signing envelope, transaction binding, or cancellation authentication that T-019/T-015 require. The fido-dev@microsoft.com channel remains the sanctioned route. Baseline tasks T-001/T-002/T-003 require human architectural disposition on the spec/ conflict and bootstrap scope.
