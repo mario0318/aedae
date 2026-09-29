@@ -11,6 +11,14 @@ $expectedPrefix = $previewRoot.TrimEnd([IO.Path]::DirectorySeparatorChar) + [IO.
 if (-not $pagesRoot.StartsWith($expectedPrefix, [StringComparison]::OrdinalIgnoreCase)) {
     throw "Refusing to prepare outside the web preview directory: $pagesRoot"
 }
+foreach ($path in @($previewRoot, $pagesRoot)) {
+    if (Test-Path -LiteralPath $path) {
+        $item = Get-Item -LiteralPath $path -Force
+        if (($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) {
+            throw "Refusing to use reparse-point preview path: $path"
+        }
+    }
+}
 
 & node (Join-Path $webRoot 'build.mjs')
 if ($LASTEXITCODE -ne 0) { throw 'Build failed. Preview bundles were not prepared.' }

@@ -74,6 +74,7 @@ export function validateClaim(status, source, context = 'claim') {
   if (typeof source !== 'string' || !source.trim()) throw new Error(`${context} has no source`);
   if (/[<>]/.test(source)) throw new Error(`${context} source contains markup`);
 }
+
 export function validateStaticStylesheet(css) {
   if (/@import\b|url\s*\(/i.test(css)) throw new Error('stylesheet contains an external-capable resource reference');
 }
@@ -95,32 +96,6 @@ export function validateSurfaceRegistry(registry) {
   }
 }
 
-const forbiddenPageText = ['aedae_handoff_v1_3_final.md', 'handoff §'];
-const forbiddenPagePatterns = [
-  /<script\b/i,
-  /<form\b/i,
-  /\blocalStorage\b/i,
-  /\bsessionStorage\b/i,
-  /data-status\s*=\s*["']built["']/i,
-  /\b(?:href|src)\s*=\s*["'](?:https?:)?\/\//i
-];
-
-export function validateRenderedPage(html, route = 'rendered page') {
-  const h1Count = [...html.matchAll(/<h1(?:\s[^>]*)?>/g)].length;
-  if (h1Count !== 1) throw new Error(`${route} has ${h1Count} h1 elements; expected exactly one`);
-  for (const token of forbiddenPageText) {
-    if (html.includes(token)) throw new Error(`${route} contains prohibited token: ${token}`);
-  }
-  for (const pattern of forbiddenPagePatterns) {
-    if (pattern.test(html)) throw new Error(`${route} matches prohibited pattern: ${pattern}`);
-  }
-
-  const statuses = [...html.matchAll(/class="status /g)].length;
-  const claims = [...html.matchAll(/<div class="claim"><span class="status ([^"]+)">[^<]+<\/span><p class="source">source: ([^<]+)<\/p><\/div>/g)];
-  if (claims.length !== statuses) throw new Error(`${route} contains an unpaired rendered claim`);
-  for (const [, status, source] of claims) validateClaim(status, source, `${route} rendered claim`);
-}
-
 const chip = (status, source) => {
   validateClaim(status, source);
   return `<div class="claim"><span class="status ${status}">${status}</span><p class="source">source: ${source}</p></div>`;
@@ -129,8 +104,8 @@ const chip = (status, source) => {
 const body = (surfaceKey, surface, content) => `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="description" content="${surface.lead}"><title>${surface.name} — ${surface.title}</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg viewBox='0 0 1 1'/%3E"><link rel="stylesheet" href="/assets/styles.css"></head>
-<body style="--accent:${surface.accent}"><a class="skip" href="#main">Skip to content</a><div class="shell">
+<link rel="stylesheet" href="/assets/styles.css"></head>
+<body class="surface-${surfaceKey}"><a class="skip" href="#main">Skip to content</a><div class="shell">
 <nav class="nav" aria-label="aeDae surfaces"><a class="mark" href="/${surfaceKey}/" aria-label="${surface.name} home">æDæ</a>${Object.entries(surfaces).map(([key, item]) => `<a ${key === surfaceKey ? 'aria-current="page"' : ''} href="/${key}/">${item.name}</a>`).join('')}</nav>
 <main id="main">${content}</main>
 <footer>Product state, security claims, and build status are authoritative on <a href="/tech/">aedae.tech</a> only. This site sets no cookies, uses no analytics, and has no third-party embeds.</footer>

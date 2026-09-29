@@ -1,5 +1,5 @@
 # Deploy five independent aeDae Pages projects to temporary *.pages.dev URLs.
-# Run from the repository root or any directory after `wrangler login`.
+# Run only after operator authentication and explicit deployment authorization.
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
@@ -31,16 +31,25 @@ try {
     foreach ($surface in $surfaces) {
         $project = "aedae-$surface"
         $dist = Join-Path $webRoot "preview\pages\$surface"
+        $config = Join-Path $PSScriptRoot "wrangler.$surface.toml"
+        if (-not (Test-Path -LiteralPath $config)) {
+            throw "Missing Wrangler configuration for ${project}: $config"
+        }
 
         Write-Host "`n-- Ensuring $project exists --"
         $created = & $npx @wranglerArgs 'pages' 'project' 'create' $project '--production-branch' 'main' 2>&1
-        if ($LASTEXITCODE -ne 0 -and (($created -join "`n") -notmatch '(?i)already exists')) {
-            throw "Could not create or find Pages project ${project}:`n$($created -join "`n")"
+        $creationText = $created -join "`n"
+        $existingProject = [regex]::IsMatch(
+            $creationText,
+            "(?is)(?=.*\b$([regex]::Escape($project))\b)(?=.*\balready exists\b)"
+        )
+        if ($LASTEXITCODE -ne 0 -and -not $existingProject) {
+            throw "Could not create or find Pages project ${project}:`n$creationText"
         }
         $created | ForEach-Object { Write-Host $_ }
 
         Write-Host "`n-- Deploying $project --"
-        $deployed = Invoke-Wrangler @('pages', 'deploy', $dist, '--project-name', $project)
+        $deployed = Invoke-Wrangler @('pages', 'deploy', $dist, '--project-name', $project, '--config', $config)
         $deployed | ForEach-Object { Write-Host $_ }
         $match = [regex]::Match(($deployed -join "`n"), 'https://[A-Za-z0-9-]+\.pages\.dev')
         if ($match.Success) { $urls[$surface] = $match.Value }
