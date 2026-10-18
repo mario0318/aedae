@@ -710,7 +710,7 @@ it is correct behavior under `AGENTS.md`.
   focused section in `reports/security-findings.md`. Use only Node built-in
   cryptography and generated ephemeral keys; no SDK, Windows API, plugin,
   credential, vault, network, or production code interaction.
-- Acceptance: deterministic tests prove that changing the signed bytes is
+- Acceptance: tests with freshly generated keys prove that changing the signed bytes is
   rejected while changing unsigned transaction/context fields is not detected
   by signature verification alone. Document that this is a model of the
   sample-observed input, not a platform exploit or contract. Identify what

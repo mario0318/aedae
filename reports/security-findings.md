@@ -133,3 +133,12 @@ Residuals: the sample-observed input is not a normative platform contract;
 broker lifetime/freshness and cancellation authentication remain unknown.
 This lab is evidence for deciding what additional guarantees are necessary,
 not evidence that the system-wide provider is safe to register or launch.
+
+Second independent review, 2026-10-18 (Codex, packet and code supplied
+inline, no tool access). Verdict: approve with conditions. It flagged the
+DONE status as premature; that is answered by the 2026-09-29 approval above,
+which it had not been shown. It flagged the five-versus-six test count; that
+is the override guard test described above. It correctly noted that RSA key
+generation makes the fixtures random, so "deterministic tests" overstated the
+acceptance wording; the T-024 entry now says the tests use freshly generated
+keys. No security defect or scope violation was found.
