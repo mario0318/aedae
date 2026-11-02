@@ -165,7 +165,7 @@ function tellBox(){
 function copy(btn){
  const el=$("#"+btn.dataset.copy);
  const ok=()=>{btn.textContent="Copied";setTimeout(()=>{btn.textContent="Copy message"},1500)};
- const fallback=()=>{el.select();try{document.execCommand("copy");ok()}catch(e){}};
+ const fallback=()=>{el.focus();el.select();let done=false;try{done=document.execCommand("copy")}catch(e){}if(done)ok();else btn.textContent="Selected: press Ctrl+C or Cmd+C"};
  try{navigator.clipboard.writeText(el.value).then(ok,fallback)}catch(e){fallback()}
 }
 function file(name,type,body){

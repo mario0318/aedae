@@ -59,12 +59,15 @@ emergency kit, safe, attorney). The prototype warns on anything that looks like 
 
 | Phase | When | What | Data Aedae holds |
 |---|---|---|---|
-| 0 | done | Static guided builder on `aedae.life`: interview → download `life-readme.md` + yearly review `.ics` + "tell my people" email drafts | none |
+| 0 | done | Static guided builder on `aedae.life`: interview → download `life-readme.md` + yearly review `.ics` + "tell my people" email drafts | none (one disclosed count image) |
 | 1 | weeks 2–4 | Opt-in check-in emails (cadence + life events), magic link back into the builder | email + schedule only |
 | 2 | month 2 | Trustee invites + acknowledgement; will-partner referral (e-will provider, affiliate revenue) | contact graph |
 | 3 | after security review | Encrypted vault + M-of-N release + passkey owner auth | ciphertext only |
 
-Phase 0 is built. It has no backend, no accounts, no breach surface. It can ship the same day it's approved.
+Phase 0 is built. It has no backend, no accounts and no stored user data. It makes one self-hosted
+count request: a fixed same-origin image shown after Download, so the host can count finishers. That
+request carries no user data and no referrer, and it is disclosed on the about page. It can ship
+the same day it's approved.
 
 ## Money
 

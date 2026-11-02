@@ -6,6 +6,9 @@
   X-Frame-Options: DENY
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
 
+# Life README builder: the only route allowed to run script (same-origin file only).
+# img-src 'self' is intentional: Joey's photo and /life/readme/done.svg, the disclosed
+# completion count shown after Download. connect-src 'none' must stay. Do not "fix" either.
 /life/readme/*
   ! Content-Security-Policy
   Content-Security-Policy: default-src 'none'; style-src 'self'; script-src 'self'; img-src 'self' data:; connect-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'

@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- img-src 'self' is deliberate: it allows Joey's photo and the done.svg completion count. connect-src stays 'none'. -->
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; script-src 'self'; img-src 'self' data:; connect-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="description" content="Write your Life README with Joey the cat: short sections on who to call, who does what, and where things are. Runs in your browser; nothing is sent anywhere.">
 <title>Life README with Joey</title>
@@ -33,7 +34,8 @@
       <button class="btn ghost" id="wipe">Clear</button>
     </div>
     <div class="after" id="after" hidden>
-      <img class="donemark" src="/life/readme/done.svg" alt="" width="40" height="40" loading="lazy">
+      <!-- Intentional: the only request after load. A fixed same-origin image, fetched once per browser after Download, so the host can count finishers. No user data, no referrer. -->
+      <img class="donemark" src="/life/readme/done.svg" alt="" width="40" height="40" loading="lazy" referrerpolicy="no-referrer">
       <p>Downloaded. Want Joey to send you a yearly reminder and keep a backup for your trusted people?</p>
       <a class="btn" id="member" href="/life/readme/membership/">Keep me reminded — $39/yr</a>
     </div>

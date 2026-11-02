@@ -23,7 +23,7 @@ const policies = csp => (csp.match(/default-src/g) || []).length;
 const builder = await get('/life/readme/');
 check(builder.status === 200, `/life/readme/ returns 200 (got ${builder.status})`);
 check(policies(builder.csp) === 1, `/life/readme/ sends exactly one CSP (got ${policies(builder.csp)})`);
-for (const directive of ["script-src 'self'", "connect-src 'none'", "form-action 'none'", "base-uri 'none'", "frame-ancestors 'none'"]) {
+for (const directive of ["script-src 'self'", "img-src 'self'", "connect-src 'none'", "form-action 'none'", "base-uri 'none'", "frame-ancestors 'none'"]) {
   check(builder.csp.includes(directive), `/life/readme/ CSP has ${directive}`);
 }
 check(!/\sstyle\s*=|\son[a-z]+\s*=/i.test(builder.body), 'served builder HTML has no inline style= or on*= attributes');
@@ -34,6 +34,15 @@ check(script.status === 200 && !/\blocation\b|\baction\s*=/i.test(script.body), 
 
 const door = await get('/life/readme/membership/');
 check(door.status === 200 && policies(door.csp) === 1 && !/<script\b/i.test(door.body), 'membership page: one CSP, no script');
+const tally = door.body.match(/href="(https:\/\/tally\.so\/r\/[A-Za-z0-9]+)"/)?.[1];
+if (tally) {
+  const form = await fetch(tally, {method: 'GET'});
+  check(form.status === 200, `waitlist form ${tally} is live (got ${form.status})`);
+} else {
+  console.log('NOTE membership page has no waitlist link yet (config.json waitlistUrl is empty)');
+}
+const pixel = await get('/life/readme/done.svg');
+check(pixel.status === 200 && /image\/svg\+xml/.test(pixel.headers.get('content-type') || ''), 'completion image is served as SVG');
 
 for (const path of ['/', '/life/']) {
   const page = await get(path);

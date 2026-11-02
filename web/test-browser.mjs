@@ -94,6 +94,10 @@ try {
   check(msg.startsWith('Hi Ben,') && msg.includes('the person in charge') && msg.endsWith('Essential Person'), 'invite is personal');
   await page.click('[data-copy="msg-executor"]');
   check(await page.evaluate(() => navigator.clipboard.readText()) === msg, 'copy button puts the invite on the clipboard');
+  await page.evaluate(() => { navigator.clipboard.writeText = () => Promise.reject(new Error('denied')); document.execCommand = () => false; });
+  await page.click('[data-copy="msg-executor"]');
+  const selected = await page.evaluate(() => { const el = document.querySelector('#msg-executor'); return document.activeElement === el && el.selectionEnd - el.selectionStart === el.value.length; });
+  check(selected && /Selected/.test(await page.textContent('[data-copy="msg-executor"]')), 'when clipboard is blocked, the message is selected for manual copy');
 
   // Fake door: honest page, no script.
   const door = await context.newPage();

@@ -1,12 +1,21 @@
-# Deploy five independent aeDae Pages projects to temporary *.pages.dev URLs.
+# Deploy aeDae Pages projects as PREVIEW deployments (branch alias on *.pages.dev).
+# Never deploys to a project's production branch, so a bound custom domain is never touched.
+# Defaults to the life surface only; pass -Surface tech,world,life,live,online for all five.
 # Run only after operator authentication and explicit deployment authorization.
+param(
+    [ValidateSet('tech', 'world', 'life', 'live', 'online')]
+    [string[]]$Surface = @('life'),
+    [ValidatePattern('^[a-z0-9-]+$')]
+    [ValidateScript({ $_ -ne 'main' })]
+    [string]$Branch = 'preview'
+)
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
 $webRoot = Split-Path -Parent $PSScriptRoot
 $repoRoot = Split-Path -Parent $webRoot
-$surfaces = @('tech', 'world', 'life', 'live', 'online')
+$surfaces = $Surface
 $npx = 'npx'
 $wranglerArgs = @('--yes', 'wrangler@4')
 
@@ -49,18 +58,18 @@ try {
         $created | ForEach-Object { Write-Host $_ }
 
         Write-Host "`n-- Deploying $project --"
-        $deployed = Invoke-Wrangler @('pages', 'deploy', $dist, '--project-name', $project, '--config', $config)
+        $deployed = Invoke-Wrangler @('pages', 'deploy', $dist, '--project-name', $project, '--branch', $Branch, '--config', $config)
         $deployed | ForEach-Object { Write-Host $_ }
-        $match = [regex]::Match(($deployed -join "`n"), 'https://[A-Za-z0-9-]+\.pages\.dev')
+        $match = [regex]::Match(($deployed -join "`n"), 'https://[A-Za-z0-9.-]+\.pages\.dev')
         if ($match.Success) { $urls[$surface] = $match.Value }
     }
 
     Write-Host "`n-- Temporary URLs (DNS untouched) --"
     foreach ($surface in $surfaces) {
         $url = if ($urls.ContainsKey($surface)) { $urls[$surface] } else { '(see Wrangler output above)' }
-        Write-Host "aedae.$surface -> $url"
+        Write-Host "aedae.$surface (preview branch $Branch) -> $url"
     }
-    Write-Host "`nVerify all five URLs before any custom-domain or DNS step."
+    Write-Host "`nVerify each URL (node web/deploy/verify-preview.mjs <url>) before any custom-domain or DNS step."
 }
 finally {
     Pop-Location

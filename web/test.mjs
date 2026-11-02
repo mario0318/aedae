@@ -119,7 +119,7 @@ check(/navigator\.clipboard\.writeText/.test(builderJs) && /class="msg" readonly
 check(/Aedae never contacts anyone\./.test(builderHtml), 'tell-my-people says Aedae never contacts anyone');
 check(/Unticking deletes it from this device right away\./.test(builderJs), 'keep-on-device note says unticking deletes immediately');
 check(/<a class="btn" id="member" href="\/life\/readme\/membership\/">/.test(builderHtml), 'fake-door button links to the same-origin membership page');
-check(/<img class="donemark" src="\/life\/readme\/done\.svg"[^>]*loading="lazy">/.test(builderHtml) && /\$\("#after"\)\.hidden=false/.test(builderJs),
+check(/<img class="donemark" src="\/life\/readme\/done\.svg"[^>]*loading="lazy"[^>]*>/.test(builderHtml) && /\$\("#after"\)\.hidden=false/.test(builderJs),
   'download reveals the fixed same-origin completion image');
 
 // 1. Drafts are tab-only unless the person opts in.
@@ -142,6 +142,15 @@ check(render('life', 'colophon').includes('heuristic nudge, not a guarantee'), '
 // 5. Essentials path covers exactly three sections.
 check(/const ESSENTIALS=\["first24","people","health"\];/.test(builderJs), 'essentials path is First 24 hours, People, Health & care');
 check(/id="essentials"/.test(builderJs) && /id="full"/.test(builderJs), 'builder offers essentials and full entry points');
+check(/src="\/life\/readme\/done\.svg"[^>]*referrerpolicy="no-referrer"/.test(builderHtml), 'completion image sends no referrer');
+const headersTemplate = await readFile('deploy/_headers.template', 'utf8');
+check(/# .*img-src 'self' is intentional[\s\S]*\/life\/readme\/\*\n  ! Content-Security-Policy\n  Content-Security-Policy: [^\n]*img-src 'self'[^\n]*connect-src 'none'/.test(headersTemplate),
+  'headers file documents the intentional img-src and keeps connect-src none');
+const deployScript = await readFile('deploy/deploy.ps1', 'utf8');
+check(/\[string\[\]\]\$Surface = @\('life'\)/.test(deployScript), 'deploy defaults to the life surface only');
+check(/'--branch', \$Branch/.test(deployScript) && /ValidateScript\(\{ \$_ -ne 'main' \}\)/.test(deployScript),
+  'deploy always uses a non-production preview branch');
+check(/selected: press ctrl\+c/i.test(builderJs), 'copy button falls back to selecting the text');
 const membershipTemplate = await readFile('src/readme/membership.html', 'utf8');
 const tally = 'https://tally.so/r/abc123';
 validateMembershipPage(renderMembershipPage(membershipTemplate, ''), '');
