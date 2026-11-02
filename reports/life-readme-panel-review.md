@@ -90,3 +90,18 @@ It agreed independently on: phase 0 as the trust wedge, deferring release behind
   it as a guarantee.
 - The contact graph of third parties needs a lawful basis, retention and deletion spelled out
   (matches the legal reviewer).
+
+## Referral red-team (external AI, relayed by owner)
+
+Verdict: referral revenue cannot fund the product. At 1,000 finished readmes, ~$40 average
+commission: $80 / $320 / $720 gross per year (pessimistic / base / optimistic). Math checked.
+- Public rates as reported, **not independently verified here**: Trust & Will 20% (Impact.com),
+  Nolo 25% (Awin, 120-day cookie), iFinallyWill 20%, FastWill 14%, Estateur $25 flat.
+  **FreeWill has no affiliate program.**
+- Approval needs a content site (10–20 posts), not just a tool.
+- Cookie windows (30–120 days) are shorter than most people's time to buy a will.
+- A will-checkout funnel undercuts the "we don't sell funerals" trust pitch.
+- A $39/yr membership at 2–3% of 1,000 readmes ($780–1,170) beats the best referral case.
+
+Decision: membership is the primary bet, tested with a fake-door button; referrals are disclosed
+upside, shown only to people with no will. The proposal's Money section is updated.
