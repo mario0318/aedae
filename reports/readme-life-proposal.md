@@ -79,9 +79,13 @@ Revised after the referral red-team (see `reports/life-readme-panel-review.md`).
   commission: $80 (pessimistic) / $320 (base) / $720 (optimistic) per year. Approval needs a site
   that looks like a publication (10–20 real posts), cookies expire long before most people buy a
   will, and a funnel feel undercuts "we don't sell funerals". FreeWill has no affiliate program.
-- Referral links appear only where a user says they have no will, with a plain "we earn a fee"
-  note next to the link. They never appear in reminders or in Joey's lines.
+- Referral links appear only where a user says they have no will, with a plain note next to
+  the link naming the partner and saying we earn a fee that varies by product (never a fixed promise). They never appear in reminders or in Joey's lines.
 - B2B per-seat: parked. A solo operator can't run an enterprise sale.
+- Paid fake-door test: the "Keep me reminded — $39/yr" button is a fixed link to a hosted waitlist
+  form (named in the privacy line), or a static mailto if we want zero third parties. Navigation is
+  not a network call from the builder, so it stays `connect-src 'none'`. Needs one allowlisted URL
+  in the builder page validator.
 - Fund the ~$150 ad test from a separate budget. Judge it on completion rate (≥15%) and paid
   fake-door clicks (≥2%), not referral dollars.
 

@@ -5,7 +5,7 @@ from the authenticator implementation while remaining in the same repository.
 
 ## Build and test
 
-Run `node test.mjs`, then `node build.mjs`. The tests exercise claim-validation rejection paths and
+Run `node test.mjs`, then `node build.mjs`. If Playwright is available, `node test-browser.mjs` runs browser acceptance checks against `dist/` (it skips when Playwright is missing). The tests exercise claim-validation rejection paths and
 the build validates structured claims, page structure, internal links, and prohibited runtime
 features before writing 15 generated pages to `dist/`, plus the Life README builder at `/life/readme/` (the only route allowed to run script; see `src/readme/`).
 
