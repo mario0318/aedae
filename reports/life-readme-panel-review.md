@@ -79,3 +79,14 @@ L-005 header/behaviour check → **L-006 bind aedae.life (your approval)**. Abou
 available. Phase 1 (newsletter link-out, cadence calendar files, a `/life/readme/done/` page so
 the host can count completions without analytics) adds about 3–5 days, mostly waiting on your
 account and DNS steps.
+
+## Sixth opinion (external AI, relayed by owner)
+
+It agreed independently on: phase 0 as the trust wedge, deferring release behind security review,
+"no secrets, only pointers", and no cold lists. Its new or sharper points:
+- Referral revenue is carrying the business until phase 3. Are the affiliate economics real?
+  (Nobody has checked actual payouts yet.)
+- The password check can false-positive on addresses as well as miss passphrases. Never market
+  it as a guarantee.
+- The contact graph of third parties needs a lawful basis, retention and deletion spelled out
+  (matches the legal reviewer).
