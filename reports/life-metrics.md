@@ -5,12 +5,13 @@ Nothing else moves until **completion rate** exists. The fake door must be live 
 
 ## Gate (one number)
 
-**Completion rate = browser-deduped completion-image requests ÷ bot-filtered builder views. Gate: ≥ 15%.**
+**Completion rate = browser-deduped (approximate) completion-image requests ÷ bot-filtered builder views. Gate: ≥ 15%.**
 
 - Numerator: requests for `/life/readme/done.svg`. The image is shown only after **Download**.
-  It has a fixed URL (no cache-busting, which the build bans anyway), so a browser fetches it about
-  once. That makes it **browser-deduped download events**, close to unique finishers, not raw
-  download clicks.
+  It has a fixed URL (no cache-busting, which the build bans anyway), so it is counted about once
+  per **browser profile**. A cleared cache, a private window or a second browser on the same machine
+  counts again. Call it **browser-deduped download events (approximate)**: not raw download clicks,
+  and not a precise unique-user count.
 - Denominator: requests for `/life/readme/` with bots removed. Exclude Cloudflare
   verified-bot traffic and obvious crawler or prefetch user agents. A rough filter is enough; never
   run the gate on raw hits.
@@ -40,19 +41,27 @@ sends no referrer.
    share link in `web/src/readme/config.json` → `waitlistUrl`. The build rejects anything that
    isn't a `https://tally.so/r/...` link. If empty, the page shows "sign-up list coming soon" and no
    link, so there is never a dead link.
-2. **Preview deploy, life site only**: `deploy.ps1` now defaults to `-Surface life` and always
+2. **Check the deploy script before running it** (PowerShell, on Windows):
+   `Invoke-ScriptAnalyzer -Path .\web\deploy\deploy.ps1` (parses without running), then
+   `.\web\deploy\deploy.ps1 -DryRun`, which must print `--branch preview` and `aedae-life` only.
+   Before the first real run: in the Pages dashboard, confirm `aedae-life`'s production branch is
+   `main`, and save `curl -I` of the production URL.
+3. **Preview deploy, life site only**: `deploy.ps1` now defaults to `-Surface life` and always
    deploys to a non-production branch (`preview`), so a bound custom domain is never touched. From a
    Linux session with Cloudflare secrets, the equivalent is:
    `npx wrangler@4 pages deploy web/preview/pages/life --project-name aedae-life --branch preview`
    (after building and preparing the bundle).
-3. **Verify**: `node web/deploy/verify-preview.mjs https://preview.aedae-life.pages.dev`. It checks
+4. **Verify**: `node web/deploy/verify-preview.mjs https://preview.aedae-life.pages.dev`. It checks
    exactly one CSP and the required directives, scans the served files, confirms the Tally link
    returns 200, checks `done.svg` is served, then runs the 20 browser checks on the real origin.
-4. **Confirm per-path counts**: in Cloudflare analytics, check that `/life/readme/done.svg` and
+   "Exactly one CSP" is a hard fail: Cloudflare joins duplicate headers with a comma, and browsers
+   enforce the intersection of both policies, which silently breaks resources. Afterwards, `curl -I`
+   the production URL again: it must be unchanged.
+5. **Confirm per-path counts**: in Cloudflare analytics, check that `/life/readme/done.svg` and
    `/life/readme/membership/` appear as separate paths on your plan. If not, use the GraphQL
    analytics API or Logpush and note which here. **No denominator means no gate, so find out
    before spending.**
-5. Then the 10-person watch, then the $150.
+6. Then the 10-person watch, then the $150.
 
 ## Headline
 

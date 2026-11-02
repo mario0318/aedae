@@ -151,6 +151,8 @@ check(/\[string\[\]\]\$Surface = @\('life'\)/.test(deployScript), 'deploy defaul
 check(/'--branch', \$Branch/.test(deployScript) && /ValidateScript\(\{ \$_ -ne 'main' \}\)/.test(deployScript),
   'deploy always uses a non-production preview branch');
 check(/selected: press ctrl\+c/i.test(builderJs), 'copy button falls back to selecting the text');
+check(/\[switch\]\$DryRun/.test(deployScript) && /DRY RUN: \$wranglerCommand pages deploy \$dist --project-name \$project --branch \$Branch/.test(deployScript) && /continue/.test(deployScript),
+  'deploy has a dry-run mode that prints the exact preview command');
 const membershipTemplate = await readFile('src/readme/membership.html', 'utf8');
 const tally = 'https://tally.so/r/abc123';
 validateMembershipPage(renderMembershipPage(membershipTemplate, ''), '');

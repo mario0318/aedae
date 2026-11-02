@@ -2,12 +2,14 @@
 # Never deploys to a project's production branch, so a bound custom domain is never touched.
 # Defaults to the life surface only; pass -Surface tech,world,life,live,online for all five.
 # Run only after operator authentication and explicit deployment authorization.
+# -DryRun builds and prepares locally, then prints the exact Wrangler commands without running them.
 param(
     [ValidateSet('tech', 'world', 'life', 'live', 'online')]
     [string[]]$Surface = @('life'),
     [ValidatePattern('^[a-z0-9-]+$')]
     [ValidateScript({ $_ -ne 'main' })]
-    [string]$Branch = 'preview'
+    [string]$Branch = 'preview',
+    [switch]$DryRun
 )
 
 Set-StrictMode -Version Latest
@@ -33,8 +35,14 @@ try {
     & (Join-Path $PSScriptRoot 'prepare.ps1')
     if ($LASTEXITCODE -ne 0) { throw 'Preview preparation failed. No Pages deployment was attempted.' }
 
-    Write-Host "`n-- Auth check --"
-    Invoke-Wrangler @('whoami') | ForEach-Object { Write-Host $_ }
+    $wranglerCommand = "$npx $($wranglerArgs -join ' ')"
+    if ($DryRun) {
+        Write-Host "`n-- DRY RUN: nothing will be uploaded --"
+        Write-Host "DRY RUN: $wranglerCommand whoami"
+    } else {
+        Write-Host "`n-- Auth check --"
+        Invoke-Wrangler @('whoami') | ForEach-Object { Write-Host $_ }
+    }
 
     $urls = @{}
     foreach ($surface in $surfaces) {
@@ -43,6 +51,12 @@ try {
         $config = Join-Path $PSScriptRoot "wrangler.$surface.toml"
         if (-not (Test-Path -LiteralPath $config)) {
             throw "Missing Wrangler configuration for ${project}: $config"
+        }
+
+        if ($DryRun) {
+            Write-Host "DRY RUN: $wranglerCommand pages project create $project --production-branch main"
+            Write-Host "DRY RUN: $wranglerCommand pages deploy $dist --project-name $project --branch $Branch --config $config"
+            continue
         }
 
         Write-Host "`n-- Ensuring $project exists --"
