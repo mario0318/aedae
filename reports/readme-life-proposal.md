@@ -91,3 +91,19 @@ look, the release protocol is the fallback differentiator.
 
 `reports/prototypes/readme-life.html` — single file, no network calls, drafts kept in browser
 storage only. Open it, fill it, download your readme.
+
+## Brand: Joey the cat
+
+Joey (a real cat) is the guide. The builder already has exactly nine sections, so the hook writes
+itself: "Joey has nine lives. You get one." A cat guide makes an end-of-life topic feel safe to
+start, which is the main conversion problem.
+
+Rules: Joey keeps it light but never jokes about death itself; for grief, illness or medical wishes
+he goes quiet and plain. Joey also delivers the "that looks like a password" warning, because
+people listen to a scolding cat more than a red box.
+
+Domain warning: `.cat` is a sponsored TLD for the Catalan language and culture community, not
+for cats. Registration terms have required a Catalan connection or Catalan-language content.
+Check the current puntCAT policy before buying `readme.cat`. If it doesn't fit, use Joey on
+whichever domain you choose (`readme.life` is already wired for deploy) and keep `readme.life` as the
+file format name either way.
