@@ -38,6 +38,7 @@ try {
     $wranglerCommand = "$npx $($wranglerArgs -join ' ')"
     if ($DryRun) {
         Write-Host "`n-- DRY RUN: nothing will be uploaded --"
+        Write-Host "Printed commands use absolute paths in double quotes, so they run as-is in cmd.exe or PowerShell."
         Write-Host "DRY RUN: $wranglerCommand whoami"
     } else {
         Write-Host "`n-- Auth check --"

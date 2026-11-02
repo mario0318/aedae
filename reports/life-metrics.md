@@ -42,8 +42,11 @@ sends no referrer.
    isn't a `https://tally.so/r/...` link. If empty, the page shows "sign-up list coming soon" and no
    link, so there is never a dead link.
 2. **Check the deploy script before running it** (PowerShell, on Windows):
-   `Invoke-ScriptAnalyzer -Path .\web\deploy\deploy.ps1` (parses without running), then
-   `.\web\deploy\deploy.ps1 -DryRun`, which must print `--branch preview` and `aedae-life` only.
+   from the repo root, `.\web\deploy\deploy.ps1 -DryRun`. It also runs `prepare.ps1`, so a syntax
+   error in either script shows up here. It must print `--project-name aedae-life --branch preview`
+   with both paths absolute and in double quotes, then "DRY RUN complete". Afterwards `git status`
+   must be clean. Use `[System.Management.Automation.Language.Parser]::ParseFile` only if it fails
+   in a way you can't pin down (it lists every error with line numbers).
    Before the first real run: in the Pages dashboard, confirm `aedae-life`'s production branch is
    `main`, and save `curl -I` of the production URL.
 3. **Preview deploy, life site only**: `deploy.ps1` now defaults to `-Surface life` and always
