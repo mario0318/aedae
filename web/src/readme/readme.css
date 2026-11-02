@@ -46,3 +46,11 @@ footer{max-width:1100px;margin:auto;padding:8px 16px 40px;color:var(--mute);font
 .warn p{margin:0}.warn p+p{margin-top:6px;font-size:13px}
 .more{margin:14px 0 0}
 a.btn{text-decoration:none;display:inline-block}
+.after,.tellbox{border:1px solid var(--line);border-radius:12px;padding:12px;margin:0 0 12px}
+.after{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.after[hidden],.tellbox[hidden]{display:none}
+.after p{margin:0;flex:1 1 200px}
+.donemark{width:40px;height:40px}
+.msg{min-height:150px;font-size:14px;margin-bottom:6px}
+.tellbox label{margin-top:10px}
+.tellbox a{color:var(--accent)}

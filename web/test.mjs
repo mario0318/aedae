@@ -1,5 +1,5 @@
 import {readFile} from 'node:fs/promises';
-import {builderScriptTag, render, surfaces, validateBuilderPage, validateBuilderScript, validateClaim, validateStaticStylesheet, validateSurfaceRegistry} from './src/site.mjs';
+import {builderScriptTag, render, renderMembershipPage, validateMembershipPage, waitlistPattern, surfaces, validateBuilderPage, validateBuilderScript, validateClaim, validateStaticStylesheet, validateSurfaceRegistry} from './src/site.mjs';
 
 let assertions = 0;
 const check = (condition, label) => {
@@ -112,8 +112,15 @@ for (const sample of scriptBypasses) {
 }
 check(!/\blocation\b|\baction\s*=/i.test(builderJs) && !/\baction=/i.test(builderHtml.replace(/form-action/g, '')),
   'builder bundle contains no location or action= at all');
-check(/^<a class="btn ghost" id="tell" href="mailto:\?subject=[^"$]*"/m.test(builderHtml.replace(/^\s+/gm, '')) && !builderJs.includes('mailto'),
-  'tell-my-people is a fixed mailto link with no draft data');
+check(/<a href="mailto:\?subject=[^"&]*">Open my email app<\/a>/.test(builderHtml) && !builderJs.includes('mailto'),
+  'email app link is a fixed mailto with no draft data');
+check(/navigator\.clipboard\.writeText/.test(builderJs) && /class="msg" readonly/.test(builderJs),
+  'tell-my-people shows personal messages to copy instead of sending them');
+check(/Aedae never contacts anyone\./.test(builderHtml), 'tell-my-people says Aedae never contacts anyone');
+check(/Unticking deletes it from this device right away\./.test(builderJs), 'keep-on-device note says unticking deletes immediately');
+check(/<a class="btn" id="member" href="\/life\/readme\/membership\/">/.test(builderHtml), 'fake-door button links to the same-origin membership page');
+check(/<img class="donemark" src="\/life\/readme\/done\.svg"[^>]*loading="lazy">/.test(builderHtml) && /\$\("#after"\)\.hidden=false/.test(builderJs),
+  'download reveals the fixed same-origin completion image');
 
 // 1. Drafts are tab-only unless the person opts in.
 check(/sessionStorage/.test(builderJs) && /keep\?ls\(\):ss\(\)/.test(builderJs), 'drafts default to sessionStorage');
@@ -135,6 +142,20 @@ check(render('life', 'colophon').includes('heuristic nudge, not a guarantee'), '
 // 5. Essentials path covers exactly three sections.
 check(/const ESSENTIALS=\["first24","people","health"\];/.test(builderJs), 'essentials path is First 24 hours, People, Health & care');
 check(/id="essentials"/.test(builderJs) && /id="full"/.test(builderJs), 'builder offers essentials and full entry points');
+const membershipTemplate = await readFile('src/readme/membership.html', 'utf8');
+const tally = 'https://tally.so/r/abc123';
+validateMembershipPage(renderMembershipPage(membershipTemplate, ''), '');
+check(true, 'membership page renders without a waitlist link');
+const withTally = renderMembershipPage(membershipTemplate, tally);
+validateMembershipPage(withTally, tally);
+check(withTally.includes(`href="${tally}"`) && withTally.includes('hosted by Tally (tally.so)'), 'membership page links and names Tally when configured');
+check(/isn't open yet/.test(withTally) && /Nothing is charged today/.test(withTally), 'membership page says plainly it does not exist yet');
+rejects(() => renderMembershipPage(membershipTemplate, 'https://evil.test/r/x'), /Tally share link/, 'non-Tally waitlist URL rejected');
+rejects(() => validateMembershipPage(withTally.replace('</main>', '<a href="https://x.test/">x</a></main>'), tally), /disallowed href/, 'membership page rejects other external links');
+rejects(() => validateMembershipPage(withTally.replace('</body>', '<script src="/x.js"></script></body>'), tally), /must be static/, 'membership page rejects script');
+const config = JSON.parse(await readFile('src/readme/config.json', 'utf8'));
+check(config.waitlistUrl === '' || waitlistPattern.test(config.waitlistUrl), 'configured waitlist URL is empty or a Tally link');
+
 const lifeHome = render('life', 'index');
 check(lifeHome.includes('href="/life/readme/"'), 'life surface links to the readme builder');
 for (const surface of ['tech', 'world', 'live', 'online']) {

@@ -22,7 +22,9 @@ const server = createServer(async (req, res) => {
     res.writeHead(200, {'content-type': types[extname(path)] || 'application/octet-stream'}).end(body);
   } catch { res.writeHead(404).end(); }
 }).listen(0);
-const base = `http://localhost:${server.address().port}/life/readme/`;
+// BASE_URL runs the same checks against a deployed preview, e.g. https://<id>.aedae-life.pages.dev
+const base = process.env.BASE_URL ? `${process.env.BASE_URL.replace(/\/$/, '')}/life/readme/` : `http://localhost:${server.address().port}/life/readme/`;
+const origin = new URL(base).origin;
 
 let passed = 0;
 const check = (ok, label) => { if (!ok) throw new Error(`FAIL ${label}`); passed += 1; console.log(`PASS ${label}`); };
@@ -30,8 +32,10 @@ const check = (ok, label) => { if (!ok) throw new Error(`FAIL ${label}`); passed
 const browser = await chromium.launch();
 try {
   const context = await browser.newContext({acceptDownloads: true, viewport: {width: 390, height: 844}});
+  await context.grantPermissions(['clipboard-read', 'clipboard-write'], {origin});
+  const fetched = [];
   const outside = [], errors = [];
-  context.on('request', r => { const u = r.url(); if (!u.startsWith('http://localhost') && !u.startsWith('blob:')) outside.push(u); });
+  context.on('request', r => { const u = r.url(); fetched.push(u); if (!u.startsWith(origin) && !u.startsWith('blob:')) outside.push(u); });
   const open = async () => {
     const page = await context.newPage();
     page.on('pageerror', e => errors.push(e.message));
@@ -74,11 +78,28 @@ try {
   await page.fill('#executor', 'Ben');
   await page.click('#next');
   await page.fill('#conditions', 'None');
+  check(!fetched.some(u => u.endsWith('/done.svg')), 'completion image is not fetched before download');
   const [download] = await Promise.all([page.waitForEvent('download'), page.click('#dl')]);
   const text = await readFile(await download.path(), 'utf8');
   check(/## First 24 hours[\s\S]*## People[\s\S]*## Health & care/.test(text) && !/## Basics|## Money map/.test(text),
     'essentials download contains the three sections and nothing else');
   check((await page.textContent('#lives')) === '3 of 3 essentials written', 'progress counts essentials');
+  await page.waitForFunction(() => document.querySelector('.donemark').complete);
+  check(fetched.filter(u => u.endsWith('/done.svg')).length >= 1, 'download fetches the completion image');
+  check(await page.isVisible('#member'), 'fake-door button appears after download');
+
+  // Tell my people: personal message, copied, never sent.
+  await page.click('#tell');
+  const msg = await page.inputValue('#msg-executor');
+  check(msg.startsWith('Hi Ben,') && msg.includes('the person in charge') && msg.endsWith('Essential Person'), 'invite is personal');
+  await page.click('[data-copy="msg-executor"]');
+  check(await page.evaluate(() => navigator.clipboard.readText()) === msg, 'copy button puts the invite on the clipboard');
+
+  // Fake door: honest page, no script.
+  const door = await context.newPage();
+  await door.goto(base + 'membership/');
+  check((await door.textContent('h1')) === "Membership isn't open yet", 'membership page says it is not open yet');
+  await door.close();
 
   // Download clears the tab draft unless kept.
   await page.reload();

@@ -88,8 +88,8 @@ function setKeep(on){
 function saveNote(){
  $("#keep").checked=keep;
  $("#savenote").textContent=keep
-  ?"Saved on this device. Anyone using this browser can open it. Uncheck or press Clear to remove it."
-  :"Kept in this tab only. Closing the tab erases it, so download first.";
+  ?"Saved on this device. Anyone using this browser can open it. Unticking deletes it from this device right away."
+  :"Kept in this tab only. Closing the tab erases it, so download first. Tick the box to keep it between visits.";
  $("#savenote").className="savenote"+(keep?" kept":"");
 }
 const sections=()=>mode==="essentials"?S.filter(s=>ESSENTIALS.includes(s.id)):S;
@@ -152,6 +152,22 @@ function render(){
 }
 function go(i){cur=i;mode?form():start();render();window.scrollTo({top:0,behavior:"smooth"})}
 function setMode(m){mode=m;data._mode=m;save();go(0)}
+// "Tell my people": personal messages shown as text to copy. Aedae never sends anything.
+const ROLES=[["executor","the person in charge"],["backup","backup for the person in charge"],["guardian","guardian for my kids or dependants"],["pet_guardian","the person who takes the pets"]];
+function message(who,role){
+ return `Hi${who?" "+who:""},\n\nI've finished writing down where my important things are and what I'd want, so you never have to guess. ${role?"I've named you as "+role+".":"I've named you in it."}\n\nI'm fine. This is just me being organised. I'll send you the file, or tell you where it's kept.\n\nNothing to do right now. Thank you for being someone I trust with this.${data.name?"\n\n"+data.name:""}`;
+}
+function tellBox(){
+ const named=ROLES.filter(([k])=>(data[k]||"").trim());
+ const items=named.length?named.map(([k,role])=>[k,data[k].trim(),role]):[["anyone","",""]];
+ $("#msgs").innerHTML=items.map(([k,who,role])=>`<label for="msg-${k}">${who?"To "+esc(who)+" ("+esc(role)+")":"Message"}</label><textarea id="msg-${k}" class="msg" readonly>${esc(message(who.split(/\s[—–-]\s/)[0],role))}</textarea><button class="btn ghost" data-copy="msg-${k}">Copy message</button>`).join("");
+}
+function copy(btn){
+ const el=$("#"+btn.dataset.copy);
+ const ok=()=>{btn.textContent="Copied";setTimeout(()=>{btn.textContent="Copy message"},1500)};
+ const fallback=()=>{el.select();try{document.execCommand("copy");ok()}catch(e){}};
+ try{navigator.clipboard.writeText(el.value).then(ok,fallback)}catch(e){fallback()}
+}
 function file(name,type,body){
  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([body],{type}));a.download=name;
  document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);
@@ -166,8 +182,11 @@ document.addEventListener("click",e=>{
  else if(t.id==="full")setMode("full");
  else if(t.id==="next"){cur<sections().length-1?go(cur+1):$("#out").scrollIntoView({behavior:"smooth"})}
  else if(t.id==="prev"&&cur)go(cur-1);
+ else if(t.dataset.copy)copy(t);
+ else if(t.id==="tell"){const box=$("#tellbox");box.hidden=!box.hidden;if(!box.hidden)tellBox()}
  else if(t.id==="dl"){
   file("life-readme.md","text/markdown",md());
+  $("#after").hidden=false;
   if(!keep)try{ss()?.removeItem(KEY)}catch(e){}
  }
  else if(t.id==="ics"){

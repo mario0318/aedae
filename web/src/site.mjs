@@ -124,6 +124,30 @@ export function validateBuilderScript(js) {
   if (hrefWrites !== blobWrites) throw new Error('builder script assigns an href other than a blob download');
 }
 
+// The membership fake door is a static page with no script. Its only outbound link may be the
+// configured hosted waitlist form, which must be a Tally share link.
+export const waitlistPattern = /^https:\/\/tally\.so\/r\/[A-Za-z0-9]+$/;
+export function renderMembershipPage(template, waitlistUrl) {
+  if (waitlistUrl && !waitlistPattern.test(waitlistUrl)) throw new Error(`waitlist URL must be a Tally share link: ${waitlistUrl}`);
+  const block = waitlistUrl
+    ? `<p><a class="btn" href="${waitlistUrl}">Leave your email and we'll tell you if it opens</a></p>\n    <p class="why">That form is hosted by Tally (tally.so), a separate company. What you type there goes to Tally and to us, and is used only to tell you if membership opens.</p>`
+    : `<p class="why">A sign-up list is coming soon. For now, nothing else to do: your Life README is already yours.</p>`;
+  return template.replace('{{WAITLIST}}', block);
+}
+export function validateMembershipPage(html, waitlistUrl) {
+  if (/<script\b|\son[a-z]+\s*=|\sstyle\s*=|<form\b|<iframe\b|<base\b|http-equiv\s*=\s*["']?refresh/i.test(html)) throw new Error('membership page must be static');
+  if (html.includes('{{')) throw new Error('membership page has an unfilled placeholder');
+  for (const [, attr, raw] of html.matchAll(/\b(href|src|action|formaction|srcset)\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi)) {
+    const value = raw.replace(/^["']|["']$/g, '');
+    const ok = /^\/(?!\/)[\w./-]*$/.test(value) || (attr.toLowerCase() === 'href' && waitlistUrl && value === waitlistUrl);
+    if (!ok) throw new Error(`membership page has a disallowed ${attr} target: ${value}`);
+  }
+  const csp = html.match(/http-equiv="Content-Security-Policy"\s+content="([^"]*)"/)?.[1] ?? '';
+  for (const directive of ["connect-src 'none'", "form-action 'none'", "base-uri 'none'", "default-src 'none'"]) {
+    if (!csp.includes(directive)) throw new Error(`membership page CSP is missing ${directive}`);
+  }
+}
+
 export function validateSurfaceRegistry(registry) {
   for (const [surfaceKey, surface] of Object.entries(registry)) {
     validateClaim(surface.state, surface.stateSource, `${surfaceKey} state`);
@@ -165,7 +189,7 @@ export function render(surfaceKey, page) {
   if (page === 'this-pc') extra = '<section class="section"><h1>Where it would sit</h1><p>Browser → Windows WebAuthn broker → æDæ plugin → Windows verification → local vault. This is the intended architecture, not a live flow.</p>' + chip('specified', 'architecture.md; functional.md') + '</section>';
   if (page === 'horizons') extra = '<section class="section"><h1>What would have to be true</h1><p>A stable platform path, demonstrated user need, maintainable security practice, and a way to extend capability without making people surrender data or agency.</p>' + chip('horizon', 'aedae venture positioning') + '</section>';
   if (page === 'n001-stopping') extra = '<section class="section"><h1>Note 001: stopping</h1><p>The public headers do not define the operation-signing envelope. The responsible action is to keep protocol work paused until the question is resolved or recorded as unavailable.</p>' + chip('research', 'tasks.md T-015; reports/operation-signature-gate-design.md') + '</section>';
-  if (page === 'colophon') extra = '<section class="section"><h1>Colophon</h1><p>This website is static. It sets no cookies, runs no analytics, and embeds no third-party content. One route, the Life README builder at /life/readme/, runs a same-origin script and makes no network requests. Its draft lasts only for the browser tab unless you tick \u201ckeep on this device\u201d. Its password check is a heuristic nudge, not a guarantee: the format\u2019s rule is pointers, never secrets, so check the file before you share it. Every other page runs no script and writes no local storage. That describes this website, not unshipped software.</p>' + chip('verified', 'aedae web public-site policy') + '</section>';
+  if (page === 'colophon') extra = '<section class="section"><h1>Colophon</h1><p>This website is static. It sets no cookies, runs no analytics, and embeds no third-party content. One route, the Life README builder at /life/readme/, runs a same-origin script that sends nothing you type. After you download, it shows one small image from this site, and our host counts how often that image and the membership page are fetched; that count is how we know whether people finish. Nothing about you or your draft goes with it. If a waitlist form is linked from the membership page, it is hosted by Tally and named there. The builder\u2019s draft lasts only for the browser tab unless you tick \u201ckeep on this device\u201d. Its password check is a heuristic nudge, not a guarantee: the format\u2019s rule is pointers, never secrets, so check the file before you share it. Every other page runs no script and writes no local storage. That describes this website, not unshipped software.</p>' + chip('verified', 'aedae web public-site policy') + '</section>';
 
   const home = `<section class="hero"><div><p class="kicker">${surface.name} / ${surface.role}</p><h1>${surface.title}</h1><p>${surface.lead}</p>${chip(surface.state, surface.stateSource)}</div><div><div class="specimen" role="img" aria-label="${surface.name} glyph construction specimen"><span class="glyph glyph-${surfaceKey}" aria-hidden="true">${surface.glyph}</span></div><p class="metrics">role: ${surface.role} / anchors: 24·56·104 / state: ${surface.state}</p></div></section><section class="section"><h2>What is on the record</h2><div class="grid">${surface.facts.map(fact => `<article class="item"><h3>${fact.heading}</h3><p>${fact.body}</p>${chip(fact.status, fact.source)}</article>`).join('')}</div></section><section class="section"><h2>Continue</h2><p class="continue-links">${surface.links.map(([path, label]) => `<a href="/${surfaceKey}/${path === 'colophon' ? 'colophon/' : `${path}/`}">${label}</a>`).join(' · ')}</p></section>`;
   return body(surfaceKey, surface, page === 'index' ? home : extra || `<section class="section"><h1>${page}</h1><p>This page is intentionally reserved for a sourced, reviewable record.</p></section>`);

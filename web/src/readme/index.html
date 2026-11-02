@@ -29,8 +29,18 @@
     <div class="row top">
       <button class="btn" id="dl">Download Life README</button>
       <button class="btn ghost" id="ics">Yearly review reminder</button>
-      <a class="btn ghost" id="tell" href="mailto:?subject=Something%20I%20did%20for%20you%2C%20nothing%20to%20worry%20about&amp;body=Hi%2C%0A%0AI%27ve%20finished%20writing%20down%20where%20my%20important%20things%20are%20and%20what%20I%27d%20want%2C%20so%20you%20never%20have%20to%20guess.%20I%27ve%20named%20you%20in%20it.%0A%0AI%27m%20fine.%20This%20is%20just%20me%20being%20organised.%20I%27ll%20send%20you%20the%20file%2C%20or%20tell%20you%20where%20it%27s%20kept.%0A%0ANothing%20to%20do%20right%20now.%20Thank%20you%20for%20being%20someone%20I%20trust%20with%20this.">Tell my people</a>
+      <button class="btn ghost" id="tell">Tell my people</button>
       <button class="btn ghost" id="wipe">Clear</button>
+    </div>
+    <div class="after" id="after" hidden>
+      <img class="donemark" src="/life/readme/done.svg" alt="" width="40" height="40" loading="lazy">
+      <p>Downloaded. Want Joey to send you a yearly reminder and keep a backup for your trusted people?</p>
+      <a class="btn" id="member" href="/life/readme/membership/">Keep me reminded — $39/yr</a>
+    </div>
+    <div class="tellbox" id="tellbox" hidden>
+      <p class="why">Copy a message and send it yourself, from your own email or phone. Aedae never contacts anyone.</p>
+      <div id="msgs"></div>
+      <p><a href="mailto:?subject=Something%20I%20did%20for%20you%2C%20nothing%20to%20worry%20about">Open my email app</a></p>
     </div>
     <pre id="preview"></pre>
   </section>

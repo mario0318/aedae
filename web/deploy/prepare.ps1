@@ -37,7 +37,7 @@ foreach ($surface in $surfaces) {
     Copy-Item -LiteralPath (Join-Path $distRoot "$surface\index.html") -Destination (Join-Path $bundle 'index.html') -Force
     [IO.File]::WriteAllText((Join-Path $bundle '_headers'), $headerText, [Text.UTF8Encoding]::new($false))
 
-    foreach ($required in @('index.html', 'assets\styles.css', 'tech\index.html', 'world\index.html', 'life\index.html', 'live\index.html', 'online\index.html', 'life\readme\index.html', 'life\readme\app.js', 'life\readme\joey.jpg', '_headers')) {
+    foreach ($required in @('index.html', 'assets\styles.css', 'tech\index.html', 'world\index.html', 'life\index.html', 'live\index.html', 'online\index.html', 'life\readme\index.html', 'life\readme\app.js', 'life\readme\joey.jpg', 'life\readme\done.svg', 'life\readme\membership\index.html', '_headers')) {
         if (-not (Test-Path -LiteralPath (Join-Path $bundle $required))) {
             throw "Preview bundle aedae-$surface is missing $required"
         }
