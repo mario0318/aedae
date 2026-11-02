@@ -1,5 +1,5 @@
 import {readFile} from 'node:fs/promises';
-import {render, surfaces, validateClaim, validateStaticStylesheet, validateSurfaceRegistry} from './src/site.mjs';
+import {builderScriptTag, render, surfaces, validateBuilderPage, validateBuilderScript, validateClaim, validateStaticStylesheet, validateSurfaceRegistry} from './src/site.mjs';
 
 let assertions = 0;
 const check = (condition, label) => {
@@ -77,6 +77,29 @@ for (const surface of ['tech', 'world', 'life', 'live', 'online']) {
     `${surface} accent meets light-mode small-text contrast`);
   check(contrast(token(dark, surface), token(dark, 'mineral')) >= 4.5,
     `${surface} accent meets dark-mode small-text contrast`);
+}
+
+const builderHtml = await readFile('src/readme/index.html', 'utf8');
+const builderJs = await readFile('src/readme/app.js', 'utf8');
+validateBuilderPage(builderHtml);
+check(true, 'readme builder page accepted');
+validateBuilderScript(builderJs);
+check(true, 'readme builder script accepted');
+rejects(() => validateBuilderPage(builderHtml.replace(builderScriptTag, builderScriptTag + '<script>alert(1)</script>')),
+  /only the same-origin/, 'builder inline script rejected');
+rejects(() => validateBuilderPage(builderHtml.replace(builderScriptTag, '<script src="https://cdn.example/x.js"></script>')),
+  /only the same-origin/, 'builder external script rejected');
+rejects(() => validateBuilderPage(builderHtml.replace('<main>', '<main onclick="x()">')), /inline event handler/,
+  'builder inline handler rejected');
+rejects(() => validateBuilderPage(builderHtml.replace("connect-src 'none'", "connect-src *")), /no-network CSP/,
+  'builder missing no-network CSP rejected');
+for (const sample of ['fetch("/x")', 'navigator.sendBeacon("/x")', 'new WebSocket("wss://x")', 'new Image().src="//x.test/p"', 'eval("1")', 'import("./x.js")']) {
+  rejects(() => validateBuilderScript(builderJs + sample), /network-capable or dynamic-code/, `builder script rejects ${sample}`);
+}
+const lifeHome = render('life', 'index');
+check(lifeHome.includes('href="/life/readme/"'), 'life surface links to the readme builder');
+for (const surface of ['tech', 'world', 'live', 'online']) {
+  check(!render(surface, 'index').includes('<script'), `${surface} still renders no script`);
 }
 
 console.log(`${assertions} focused website assertions passed`);

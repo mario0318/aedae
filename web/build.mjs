@@ -1,7 +1,7 @@
 import {mkdir, readFile, rm, writeFile} from 'node:fs/promises';
 import {dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {render, surfaces, validateClaim, validateStaticStylesheet, validateSurfaceRegistry} from './src/site.mjs';
+import {render, surfaces, validateBuilderPage, validateBuilderScript, validateClaim, validateStaticStylesheet, validateSurfaceRegistry} from './src/site.mjs';
 
 process.chdir(dirname(fileURLToPath(import.meta.url)));
 
@@ -35,7 +35,18 @@ const stylesheet = await readFile('src/styles.css');
 validateStaticStylesheet(stylesheet.toString('utf8'));
 await writeFile('dist/assets/styles.css', stylesheet);
 
-const outputRoutes = new Set(['/assets/styles.css']);
+const outputRoutes = new Set(['/assets/styles.css', '/life/readme/']);
+const builderHtml = await readFile('src/readme/index.html', 'utf8');
+const builderJs = await readFile('src/readme/app.js', 'utf8');
+const builderCss = await readFile('src/readme/readme.css', 'utf8');
+validateBuilderPage(builderHtml);
+validateBuilderScript(builderJs);
+validateStaticStylesheet(builderCss);
+await mkdir('dist/life/readme', {recursive: true});
+await writeFile('dist/life/readme/index.html', builderHtml);
+await writeFile('dist/life/readme/app.js', builderJs);
+await writeFile('dist/life/readme/readme.css', builderCss);
+await writeFile('dist/life/readme/joey.jpg', await readFile('src/readme/joey.jpg'));
 const renderedPages = [];
 for (const [surface, names] of Object.entries(pages)) {
   for (const page of names) {
@@ -59,5 +70,5 @@ for (const [route, html] of renderedPages) {
   }
 }
 
-if (renderedPages.length !== 15 || outputRoutes.size !== 16) throw new Error('Unexpected generated route count');
-console.log(`Built and validated ${renderedPages.length} pages across ${Object.keys(pages).length} surfaces`);
+if (renderedPages.length !== 15 || outputRoutes.size !== 17) throw new Error('Unexpected generated route count');
+console.log(`Built and validated ${renderedPages.length} pages across ${Object.keys(pages).length} surfaces, plus the Life README builder`);

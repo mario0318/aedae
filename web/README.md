@@ -7,7 +7,7 @@ from the authenticator implementation while remaining in the same repository.
 
 Run `node test.mjs`, then `node build.mjs`. The tests exercise claim-validation rejection paths and
 the build validates structured claims, page structure, internal links, and prohibited runtime
-features before writing 15 generated pages to `dist/`.
+features before writing 15 generated pages to `dist/`, plus the Life README builder at `/life/readme/` (the only route allowed to run script; see `src/readme/`).
 
 The optional `deploy/` directory prepares five local Cloudflare Pages preview bundles. Run
 `powershell -NoProfile -ExecutionPolicy Bypass -File deploy/prepare.ps1` for a network-free check.

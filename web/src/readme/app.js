@@ -1,77 +1,5 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>readme.life with Joey</title>
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'">
-<style>
-:root{--bg:#f6f4ef;--card:#fff;--ink:#1c1b19;--mute:#6b675f;--line:#e2ded4;--accent:#1f6f5c;--warn:#a4441b;--warnbg:#fbeee6}
-@media (prefers-color-scheme:dark){:root{--bg:#141413;--card:#1e1d1b;--ink:#ecebe6;--mute:#a19d93;--line:#34322e;--accent:#5cc2a6;--warn:#f0a07a;--warnbg:#3a2419}}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
-header{padding:28px 16px 8px;max-width:1100px;margin:auto}
-h1{margin:0;font-size:28px;letter-spacing:-.02em}
-h1 span{color:var(--accent)}
-header p{margin:6px 0 0;color:var(--mute);max-width:60ch}
-main{max-width:1100px;margin:auto;padding:16px;display:grid;gap:16px}
-@media (min-width:900px){main{grid-template-columns:1fr 1fr;align-items:start}#out{position:sticky;top:16px}}
-nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
-nav button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:6px 12px;font:inherit;font-size:14px;cursor:pointer}
-nav button[aria-current=true]{background:var(--accent);border-color:var(--accent);color:var(--bg)}
-nav button.done::after{content:" ✓"}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
-.card h2{margin:0 0 4px;font-size:20px}
-.why{margin:0 0 14px;color:var(--mute);font-size:14px}
-label{display:block;font-weight:600;font-size:14px;margin:14px 0 4px}
-label small{font-weight:400;color:var(--mute)}
-input,textarea,select{width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit}
-textarea{min-height:80px;resize:vertical}
-.row{display:flex;gap:8px;justify-content:space-between;margin-top:18px;flex-wrap:wrap}
-.btn{border:0;border-radius:10px;padding:10px 16px;font:inherit;font-weight:600;cursor:pointer;background:var(--accent);color:var(--bg)}
-.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
-.warn{background:var(--warnbg);color:var(--warn);border-radius:10px;padding:10px 12px;font-size:14px;margin-top:12px}
-.warn[hidden]{display:none}
-pre{white-space:pre-wrap;word-break:break-word;margin:0;font:13px/1.5 ui-monospace,Menlo,Consolas,monospace;max-height:60vh;overflow:auto}
-.meter{height:6px;background:var(--line);border-radius:6px;overflow:hidden;margin:10px 0 14px}
-.meter i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s}
-.joey{display:flex;gap:12px;align-items:flex-start;margin-bottom:14px}
-.joey svg{flex:0 0 64px;width:64px;height:64px}
-.joey img{flex:0 0 64px;width:64px;height:64px;border-radius:50%;object-fit:cover}
-.bubble{position:relative;background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:10px 12px;font-size:15px}
-.bubble b{display:block;font-size:12px;color:var(--accent);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px}
-.lives{font-size:13px;color:var(--mute);margin:-6px 0 10px}
-footer{max-width:1100px;margin:auto;padding:8px 16px 40px;color:var(--mute);font-size:13px}
-</style>
-</head>
-<body>
-<header>
-  <h1>readme<span>.life</span></h1>
-  <p>Joey has nine lives. You get one. Joey will walk you through nine short sections so the people you love never have to guess. Nothing leaves this page: no server, no account.</p>
-</header>
-<main>
-  <section>
-    <nav id="tabs" aria-label="Sections"></nav>
-    <div class="card" id="form"></div>
-  </section>
-  <section class="card" id="out">
-    <h2>Your readme.life</h2>
-    <div class="meter" aria-hidden="true"><i id="meter"></i></div>
-    <p class="lives" id="lives"></p>
-    <div class="row" style="margin:0 0 12px">
-      <button class="btn" id="dl">Download readme.life</button>
-      <button class="btn ghost" id="ics">Yearly review reminder</button>
-      <button class="btn ghost" id="tell">Tell my people</button>
-      <button class="btn ghost" id="wipe">Clear</button>
-    </div>
-    <pre id="preview"></pre>
-  </section>
-</main>
-<footer>readme.life/0.1 · Guided by Joey, a real cat. · Not a will. A readme points to your will; it doesn't replace one. Never put passwords, PINs or account numbers here: say where they live instead.</footer>
-
-<script>
-// Swap JOEY_PHOTO for a data: URL of the real Joey to replace the drawn one.
-const JOEY_PHOTO="";
+// Real Joey photo; the drawn cat is the fallback if this is emptied.
+const JOEY_PHOTO="/life/readme/joey.jpg";
 const JOEY_SVG=`<svg viewBox="0 0 64 64" role="img" aria-label="Joey the cat"><circle cx="32" cy="32" r="31" fill="var(--bg)" stroke="var(--line)"/><path d="M14 22 L18 6 L28 16 Z M50 22 L46 6 L36 16 Z" fill="#e09a4f"/><ellipse cx="32" cy="35" rx="20" ry="17" fill="#e09a4f"/><path d="M24 22 q8 -4 16 0" stroke="#b86f2c" stroke-width="2" fill="none"/><ellipse cx="25" cy="33" rx="3" ry="4" fill="#1c1b19"/><ellipse cx="39" cy="33" rx="3" ry="4" fill="#1c1b19"/><circle cx="26" cy="32" r="1" fill="#fff"/><circle cx="40" cy="32" r="1" fill="#fff"/><path d="M30 39 L34 39 L32 41 Z" fill="#d9636b"/><path d="M32 41 q-3 4 -6 2 M32 41 q3 4 6 2" stroke="#1c1b19" stroke-width="1.2" fill="none"/><path d="M12 38 L22 39 M12 42 L22 41 M52 38 L42 39 M52 42 L42 41" stroke="#1c1b19" stroke-width=".8"/></svg>`;
 const JOEY={
  basics:"Hi, I'm Joey. Start easy: who are you? I already know who I am.",
@@ -124,7 +52,7 @@ const S=[
   ["music","Music, readings, who speaks","area"],["belongings","Things that should go to someone specific","area"],
   ["notes","Notes to specific people","area"]]}
 ];
-const KEY="readme.life.draft.v0";
+const KEY="aedae.life-readme.draft.v0";
 let data={},cur=0;
 try{data=JSON.parse(localStorage.getItem(KEY)||"{}")}catch(e){data={}}
 const $=s=>document.querySelector(s);
@@ -155,7 +83,7 @@ function form(){
 }
 function md(){
  const today=new Date().toISOString().slice(0,10);
- let o=`---\nformat: readme.life/0.1\nname: ${JSON.stringify(data.name||"")}\nupdated: ${today}\nreview: yearly\n---\n\n# readme.life — ${data.name||"(your name)"}\n\n> Not a will. This file says where things are and what I want. Last updated ${today}.\n`;
+ let o=`---\nformat: life-readme/0.1\nname: ${JSON.stringify(data.name||"")}\nupdated: ${today}\nreview: yearly\n---\n\n# Life README — ${data.name||"(your name)"}\n\n> Not a will. This file says where things are and what I want. Last updated ${today}.\n`;
  for(const s of S){
   const rows=s.f.filter(([k])=>(data[k]||"").trim());
   if(!rows.length)continue;
@@ -188,20 +116,17 @@ document.addEventListener("click",e=>{
  if(t.dataset.i)go(+t.dataset.i);
  else if(t.id==="next"){cur<S.length-1?go(cur+1):$("#out").scrollIntoView({behavior:"smooth"})}
  else if(t.id==="prev"&&cur)go(cur-1);
- else if(t.id==="dl")file("readme.life.md","text/markdown",md());
+ else if(t.id==="dl")file("life-readme.md","text/markdown",md());
  else if(t.id==="ics"){
   const d=new Date();d.setFullYear(d.getFullYear()+1);const ds=d.toISOString().slice(0,10).replace(/-/g,"");
-  const uid=Date.now()+"@readme.life";
-  file("readme-life-review.ics","text/calendar",["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//readme.life//0.1//EN","BEGIN:VEVENT",`UID:${uid}`,`DTSTAMP:${new Date().toISOString().replace(/[-:]/g,"").slice(0,15)}Z`,`DTSTART;VALUE=DATE:${ds}`,"RRULE:FREQ=YEARLY","SUMMARY:Review my readme.life","DESCRIPTION:15 minutes. New people? New accounts? Moved? Update it and re-send.","BEGIN:VALARM","TRIGGER:-P1D","ACTION:DISPLAY","DESCRIPTION:readme.life review tomorrow","END:VALARM","END:VEVENT","END:VCALENDAR"].join("\r\n"));
+  const uid=Date.now()+"@aedae.life";
+  file("readme-life-review.ics","text/calendar",["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//aedae.life//Life README 0.1//EN","BEGIN:VEVENT",`UID:${uid}`,`DTSTAMP:${new Date().toISOString().replace(/[-:]/g,"").slice(0,15)}Z`,`DTSTART;VALUE=DATE:${ds}`,"RRULE:FREQ=YEARLY","SUMMARY:Review my Life README","DESCRIPTION:15 minutes. New people? New accounts? Moved? Update it and re-send.","BEGIN:VALARM","TRIGGER:-P1D","ACTION:DISPLAY","DESCRIPTION:Life README review tomorrow","END:VALARM","END:VEVENT","END:VCALENDAR"].join("\r\n"));
  }
  else if(t.id==="tell"){
   const who=["executor","backup","guardian","pet_guardian"].map(k=>data[k]).filter(Boolean).join(", ");
-  const body=`Hi,\n\nI've written a readme.life — a short file that says where my important things are and what I'd want if I couldn't tell you myself. I've named you in it${who?" ("+who+")":""}.\n\nNothing's wrong. I just didn't want you guessing. I'll send you the file / tell you where it's kept.\n\n${data.name||""}`;
-  location.href=`mailto:?subject=${encodeURIComponent("I named you in my readme.life")}&body=${encodeURIComponent(body)}`;
+  const body=`Hi,\n\nI've written a Life README — a short file that says where my important things are and what I'd want if I couldn't tell you myself. I've named you in it${who?" ("+who+")":""}.\n\nNothing's wrong. I just didn't want you guessing. I'll send you the file / tell you where it's kept.\n\n${data.name||""}`;
+  location.href=`mailto:?subject=${encodeURIComponent("I named you in my Life README")}&body=${encodeURIComponent(body)}`;
  }
  else if(t.id==="wipe"&&confirm("Clear everything on this device?")){data={};try{localStorage.removeItem(KEY)}catch(e){}go(0)}
 });
 go(0);
-</script>
-</body>
-</html>

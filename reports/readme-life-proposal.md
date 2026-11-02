@@ -1,4 +1,4 @@
-# Proposal: readme.life — Aedae as a life-readme service
+# Proposal: Life README — Aedae as a life-readme service
 
 Status: PROPOSAL (Planner output, not an approved task). Does not touch the authenticator,
 crypto, or contract-protected files.
@@ -6,7 +6,7 @@ crypto, or contract-protected files.
 ## One line
 
 Everyone ships software with a README. Nobody ships their life with one. Aedae gets people to
-write `readme.life` — a short, portable file that tells the people they love what to do, where
+write a Life README — a short, portable file that tells the people they love what to do, where
 things are, and who to call — then keeps it current and gets it to the right people at the
 right time.
 
@@ -28,14 +28,14 @@ privacy law. Outreach comes from three legitimate directions:
    birthday, new kid, marriage, divorce, new home, new job. "Your readme is 14 months old. Two
    questions, 90 seconds."
 2. **Network** — a readme names people (executor, emergency contact, pet guardian). Those people
-   get one invite: "Mario named you in their readme.life. Here's what that means." That is the
+   get one invite: "Mario named you in their Life README. Here's what that means." That is the
    growth loop, and it is consent-based on both ends.
 3. **Channels** — employers (benefits enrolment), banks/insurers (beneficiary updates), estate
-   attorneys, hospices. They hand out readme.life; Aedae never buys lists.
+   attorneys, hospices. They hand out Life README; Aedae never buys lists.
 
 ## The file format (open on purpose)
 
-`readme.life` is Markdown with YAML front matter, versioned `readme.life/0.1`. Human-readable,
+A Life README is Markdown with YAML front matter, versioned `life-readme/0.1`. Human-readable,
 printable, diffable, works with zero Aedae servers. Openness is the trust argument: you can leave
 with your data in one click because the data *is* the file.
 
@@ -59,12 +59,12 @@ emergency kit, safe, attorney). The prototype warns on anything that looks like 
 
 | Phase | When | What | Data Aedae holds |
 |---|---|---|---|
-| 0 | now | Static guided builder on `aedae.life`: interview → download `readme.life` + yearly review `.ics` + "tell my people" email drafts | none |
+| 0 | done | Static guided builder on `aedae.life`: interview → download `life-readme.md` + yearly review `.ics` + "tell my people" email drafts | none |
 | 1 | weeks 2–4 | Opt-in check-in emails (cadence + life events), magic link back into the builder | email + schedule only |
 | 2 | month 2 | Trustee invites + acknowledgement; will-partner referral (e-will provider, affiliate revenue) | contact graph |
 | 3 | after security review | Encrypted vault + M-of-N release + passkey owner auth | ciphertext only |
 
-Phase 0 has no backend, no accounts, no breach surface. It can ship the same day it's approved.
+Phase 0 is built. It has no backend, no accounts, no breach surface. It can ship the same day it's approved.
 
 ## Money
 
@@ -84,13 +84,16 @@ look, the release protocol is the fallback differentiator.
 - Legal wording: never call the readme a will; state laws differ. Copy reviewed before launch.
 - Emotional UX: death is a conversion-killer. Frame as "if you're in hospital tomorrow," not
   "when you die." The prototype leads with the first 24 hours.
-- Scope creep into the authenticator repo: keep readme.life as a separate deployable under `web/`
+- Scope creep into the authenticator repo: keep the Life README as a separate deployable under `web/`
   or its own repo; it must not ship inside the signed authenticator package.
 
-## Prototype
+## Where it lives
 
-`reports/prototypes/readme-life.html` — single file, no network calls, drafts kept in browser
-storage only. Open it, fill it, download your readme.
+`aedae.life/life/readme/` — source in `web/src/readme/`. It is the only route on the site allowed
+to run script: one same-origin file, no inline code, `connect-src 'none'`, drafts in browser
+storage only. `web/build.mjs` and `web/test.mjs` reject inline or external scripts and any
+network-capable API in the builder. The file people download is `life-readme.md`
+(format `life-readme/0.1`).
 
 ## Brand: Joey the cat
 
@@ -102,8 +105,8 @@ Rules: Joey keeps it light but never jokes about death itself; for grief, illnes
 he goes quiet and plain. Joey also delivers the "that looks like a password" warning, because
 people listen to a scolding cat more than a red box.
 
-Domain warning: `.cat` is a sponsored TLD for the Catalan language and culture community, not
-for cats. Registration terms have required a Catalan connection or Catalan-language content.
-Check the current puntCAT policy before buying `readme.cat`. If it doesn't fit, use Joey on
-whichever domain you choose (`readme.life` is already wired for deploy) and keep `readme.life` as the
-file format name either way.
+Domain: no new domain. The service runs on `aedae.life`, which is already configured for deploy.
+`readme.cat` was dropped (`.cat` is restricted to the Catalan community) and `readme.life` is not
+owned, so the product and file format are called Life README to avoid pointing people at a
+domain someone else controls. Joey's avatar is a cropped, metadata-stripped photo
+(`web/src/readme/joey.jpg`).
