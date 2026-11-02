@@ -55,7 +55,7 @@ try {
 
         if ($DryRun) {
             Write-Host "DRY RUN: $wranglerCommand pages project create $project --production-branch main"
-            Write-Host "DRY RUN: $wranglerCommand pages deploy $dist --project-name $project --branch $Branch --config $config"
+            Write-Host "DRY RUN: $wranglerCommand pages deploy `"$dist`" --project-name $project --branch $Branch --config `"$config`""
             continue
         }
 
@@ -76,6 +76,11 @@ try {
         $deployed | ForEach-Object { Write-Host $_ }
         $match = [regex]::Match(($deployed -join "`n"), 'https://[A-Za-z0-9.-]+\.pages\.dev')
         if ($match.Success) { $urls[$surface] = $match.Value }
+    }
+
+    if ($DryRun) {
+        Write-Host "`nDRY RUN complete: nothing was uploaded and no Wrangler command was run."
+        return
     }
 
     Write-Host "`n-- Temporary URLs (DNS untouched) --"

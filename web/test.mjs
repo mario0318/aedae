@@ -151,8 +151,19 @@ check(/\[string\[\]\]\$Surface = @\('life'\)/.test(deployScript), 'deploy defaul
 check(/'--branch', \$Branch/.test(deployScript) && /ValidateScript\(\{ \$_ -ne 'main' \}\)/.test(deployScript),
   'deploy always uses a non-production preview branch');
 check(/selected: press ctrl\+c/i.test(builderJs), 'copy button falls back to selecting the text');
-check(/\[switch\]\$DryRun/.test(deployScript) && /DRY RUN: \$wranglerCommand pages deploy \$dist --project-name \$project --branch \$Branch/.test(deployScript) && /continue/.test(deployScript),
+check(/\[switch\]\$DryRun/.test(deployScript) && /DRY RUN: \$wranglerCommand pages deploy `"\$dist`" --project-name \$project --branch \$Branch/.test(deployScript) && /continue/.test(deployScript),
   'deploy has a dry-run mode that prints the exact preview command');
+{
+  // Structural, not cosmetic: in a dry run, no Wrangler call may be reachable.
+  const at = text => deployScript.indexOf(text);
+  const guardStart = at('        if ($DryRun) {'), skip = at('            continue'), create = at("'pages' 'project' 'create'"), upload = at("Invoke-Wrangler @('pages', 'deploy'");
+  const whoamiGuard = /if \(\$DryRun\) \{[^}]*\} else \{\s*Write-Host "`n-- Auth check --"\s*Invoke-Wrangler @\('whoami'\)/.test(deployScript);
+  const calls = [...deployScript.matchAll(/Invoke-Wrangler @\(|& \$npx /g)].length;
+  check(whoamiGuard && guardStart > 0 && guardStart < skip && skip < create && create < upload && calls === 4,
+    'dry run skips every Wrangler call: login is in the else branch, create and deploy come after continue');
+  check(/--branch \$Branch --config `"\$config`""/.test(deployScript) && /'--branch', \$Branch, '--config'/.test(deployScript),
+    'dry run prints the same $Branch variable the real deploy sends');
+}
 const membershipTemplate = await readFile('src/readme/membership.html', 'utf8');
 const tally = 'https://tally.so/r/abc123';
 validateMembershipPage(renderMembershipPage(membershipTemplate, ''), '');
