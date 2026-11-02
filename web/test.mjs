@@ -85,17 +85,56 @@ validateBuilderPage(builderHtml);
 check(true, 'readme builder page accepted');
 validateBuilderScript(builderJs);
 check(true, 'readme builder script accepted');
-rejects(() => validateBuilderPage(builderHtml.replace(builderScriptTag, builderScriptTag + '<script>alert(1)</script>')),
-  /only the same-origin/, 'builder inline script rejected');
-rejects(() => validateBuilderPage(builderHtml.replace(builderScriptTag, '<script src="https://cdn.example/x.js"></script>')),
-  /only the same-origin/, 'builder external script rejected');
-rejects(() => validateBuilderPage(builderHtml.replace('<main>', '<main onclick="x()">')), /inline event handler/,
-  'builder inline handler rejected');
-rejects(() => validateBuilderPage(builderHtml.replace("connect-src 'none'", "connect-src *")), /no-network CSP/,
-  'builder missing no-network CSP rejected');
-for (const sample of ['fetch("/x")', 'navigator.sendBeacon("/x")', 'new WebSocket("wss://x")', 'new Image().src="//x.test/p"', 'eval("1")', 'import("./x.js")']) {
-  rejects(() => validateBuilderScript(builderJs + sample), /network-capable or dynamic-code/, `builder script rejects ${sample}`);
+const pageRejects = [
+  [builderHtml.replace(builderScriptTag, builderScriptTag + '<script>alert(1)</script>'), /only the same-origin/, 'inline script'],
+  [builderHtml.replace(builderScriptTag, '<script src="https://cdn.example/x.js"></script>'), /only the same-origin/, 'external script'],
+  [builderHtml.replace('</body>', '<script src="/x.js"></body>'), /only the same-origin/, 'unclosed second script'],
+  [builderHtml.replace('<main>', '<main onclick="x()">'), /inline event handler/, 'inline handler'],
+  [builderHtml.replace("connect-src 'none'", 'connect-src *'), /connect-src 'none'/, 'missing connect-src none'],
+  [builderHtml.replace("form-action 'none'", ''), /form-action 'none'/, 'missing form-action none'],
+  [builderHtml.replace('</head>', '<meta http-equiv="refresh" content="0;url=https://x.test/"></head>'), /meta refresh/, 'meta refresh'],
+  [builderHtml.replace('href="/life/"', 'href=//x.test/'), /disallowed href/, 'unquoted protocol-relative link'],
+  [builderHtml.replace('href="/life/"', 'href="https://x.test/"'), /disallowed href/, 'external link'],
+  [builderHtml.replace('href="/life/"', 'href="javascript:alert(1)"'), /disallowed href/, 'javascript: link'],
+  [builderHtml.replace('<main>', '<main><form action="/x">'), /form, frame or base/, 'form element']
+];
+for (const [html, pattern, label] of pageRejects) rejects(() => validateBuilderPage(html), pattern, `builder page rejects ${label}`);
+
+const scriptBypasses = [
+  'fetch("/x")', 'fetch?.("/x")', 'window["fe"+"tch"]("/x")', 'globalThis["fetch"]', 'navigator.sendBeacon.call(navigator,"/x")',
+  'new WebSocket("wss://x")', 'document.createElement("img").src="/p"', 'new Image().src="/p"', 'setTimeout("x()",1)',
+  'location.href="mailto:"+data.name', 'window.location.assign("/x")', 'location.replace("/x")', 'window.open("/x?d="+data)',
+  'a.href="/x?d="+JSON.stringify(data)', 'el.setAttribute("href","/x")', 'f.action="/x"', 'document.write("<a>")',
+  'eval("1")', 'import("./x.js")', 'x.innerHTML=`<a href="/x">`', 'x.innerHTML=`<meta http-equiv=refresh>`'
+];
+for (const sample of scriptBypasses) {
+  rejects(() => validateBuilderScript(builderJs + '\n' + sample), /network-capable|assigns an href/, `builder script rejects ${sample}`);
 }
+check(!/\blocation\b|\baction\s*=/i.test(builderJs) && !/\baction=/i.test(builderHtml.replace(/form-action/g, '')),
+  'builder bundle contains no location or action= at all');
+check(/^<a class="btn ghost" id="tell" href="mailto:\?subject=[^"$]*"/m.test(builderHtml.replace(/^\s+/gm, '')) && !builderJs.includes('mailto'),
+  'tell-my-people is a fixed mailto link with no draft data');
+
+// 1. Drafts are tab-only unless the person opts in.
+check(/sessionStorage/.test(builderJs) && /keep\?ls\(\):ss\(\)/.test(builderJs), 'drafts default to sessionStorage');
+check(/<input type="checkbox" id="keep">/.test(builderHtml), 'keep-on-device checkbox exists and is unchecked by default');
+check(builderHtml.includes('Keep this on this device between visits.'), 'keep-on-device checkbox has the agreed label');
+check(/removeItem\(OLD_KEY\)/.test(builderJs), 'drafts saved by earlier versions without consent are removed');
+check(/if\(!keep\)try\{ss\(\)\?\.removeItem\(KEY\)\}/.test(builderJs), 'tab draft is cleared on download unless kept');
+
+// 3. Copy rules: no mortality jokes or game-score language.
+for (const banned of ['You get one', '6pm', 'nap', 'Joey approves', 'nine lives done', 'windowsill', "I'll make sure each one hears"]) {
+  check(!builderJs.includes(banned) && !builderHtml.includes(banned), `builder copy no longer says "${banned}"`);
+}
+check(builderHtml.includes('Joey has nine lives. Yours deserves a plan.'), 'builder headline uses the agreed line');
+
+// 4. The password check admits its limits.
+check(builderJs.includes("he's a cat, not a scanner. Check the file before you share it."), 'secret warning says Joey can miss things');
+check(render('life', 'colophon').includes('heuristic nudge, not a guarantee'), 'colophon states the password check is a heuristic');
+
+// 5. Essentials path covers exactly three sections.
+check(/const ESSENTIALS=\["first24","people","health"\];/.test(builderJs), 'essentials path is First 24 hours, People, Health & care');
+check(/id="essentials"/.test(builderJs) && /id="full"/.test(builderJs), 'builder offers essentials and full entry points');
 const lifeHome = render('life', 'index');
 check(lifeHome.includes('href="/life/readme/"'), 'life surface links to the readme builder');
 for (const surface of ['tech', 'world', 'live', 'online']) {

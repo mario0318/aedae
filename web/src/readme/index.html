@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; script-src 'self'; img-src 'self' data:; connect-src 'none'; base-uri 'none'; form-action 'none'">
-<meta name="description" content="Write your Life README with Joey the cat: nine short sections so the people you love never have to guess. Runs in your browser; nothing is sent anywhere.">
+<meta name="description" content="Write your Life README with Joey the cat: short sections on who to call, who does what, and where things are. Runs in your browser; nothing is sent anywhere.">
 <title>Life README with Joey</title>
 <link rel="stylesheet" href="/life/readme/readme.css">
 <script src="/life/readme/app.js" defer></script>
@@ -13,7 +13,7 @@
 <header>
   <a class="back" href="/life/">← aedae.life</a>
   <h1>Life <span>README</span></h1>
-  <p>Joey has nine lives. You get one. Joey will walk you through nine short sections so the people you love never have to guess. Nothing leaves this page: no server, no account.</p>
+  <p>Joey has nine lives. Yours deserves a plan. He'll walk you through who to call, who does what, and where things are, so your people know what to do. Nothing leaves this page: no server, no account.</p>
 </header>
 <main>
   <section>
@@ -24,16 +24,18 @@
     <h2>Your Life README</h2>
     <div class="meter" aria-hidden="true"><i id="meter"></i></div>
     <p class="lives" id="lives"></p>
+    <label class="keep"><input type="checkbox" id="keep"> Keep this on this device between visits.</label>
+    <p class="savenote" id="savenote" role="status"></p>
     <div class="row top">
       <button class="btn" id="dl">Download Life README</button>
       <button class="btn ghost" id="ics">Yearly review reminder</button>
-      <button class="btn ghost" id="tell">Tell my people</button>
+      <a class="btn ghost" id="tell" href="mailto:?subject=Something%20I%20did%20for%20you%2C%20nothing%20to%20worry%20about&amp;body=Hi%2C%0A%0AI%27ve%20finished%20writing%20down%20where%20my%20important%20things%20are%20and%20what%20I%27d%20want%2C%20so%20you%20never%20have%20to%20guess.%20I%27ve%20named%20you%20in%20it.%0A%0AI%27m%20fine.%20This%20is%20just%20me%20being%20organised.%20I%27ll%20send%20you%20the%20file%2C%20or%20tell%20you%20where%20it%27s%20kept.%0A%0ANothing%20to%20do%20right%20now.%20Thank%20you%20for%20being%20someone%20I%20trust%20with%20this.">Tell my people</a>
       <button class="btn ghost" id="wipe">Clear</button>
     </div>
     <pre id="preview"></pre>
   </section>
 </main>
-<footer>life-readme/0.1 · Guided by Joey, a real cat. · Not a will. A readme points to your will; it doesn't replace one. Never put passwords, PINs or account numbers here: say where they live instead.</footer>
+<footer>life-readme/0.1 · Guided by Joey, a real cat. · Not a will. A readme points to your will; it doesn't replace one. Never put passwords, PINs or account numbers here: say where they live instead. Joey's password check is a nudge, not a guarantee.</footer>
 
 </body>
 </html>
