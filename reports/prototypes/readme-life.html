@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>readme.life</title>
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'">
+<style>
+:root{--bg:#f6f4ef;--card:#fff;--ink:#1c1b19;--mute:#6b675f;--line:#e2ded4;--accent:#1f6f5c;--warn:#a4441b;--warnbg:#fbeee6}
+@media (prefers-color-scheme:dark){:root{--bg:#141413;--card:#1e1d1b;--ink:#ecebe6;--mute:#a19d93;--line:#34322e;--accent:#5cc2a6;--warn:#f0a07a;--warnbg:#3a2419}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+header{padding:28px 16px 8px;max-width:1100px;margin:auto}
+h1{margin:0;font-size:28px;letter-spacing:-.02em}
+h1 span{color:var(--accent)}
+header p{margin:6px 0 0;color:var(--mute);max-width:60ch}
+main{max-width:1100px;margin:auto;padding:16px;display:grid;gap:16px}
+@media (min-width:900px){main{grid-template-columns:1fr 1fr;align-items:start}#out{position:sticky;top:16px}}
+nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+nav button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:6px 12px;font:inherit;font-size:14px;cursor:pointer}
+nav button[aria-current=true]{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+nav button.done::after{content:" ✓"}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
+.card h2{margin:0 0 4px;font-size:20px}
+.why{margin:0 0 14px;color:var(--mute);font-size:14px}
+label{display:block;font-weight:600;font-size:14px;margin:14px 0 4px}
+label small{font-weight:400;color:var(--mute)}
+input,textarea,select{width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit}
+textarea{min-height:80px;resize:vertical}
+.row{display:flex;gap:8px;justify-content:space-between;margin-top:18px;flex-wrap:wrap}
+.btn{border:0;border-radius:10px;padding:10px 16px;font:inherit;font-weight:600;cursor:pointer;background:var(--accent);color:var(--bg)}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.warn{background:var(--warnbg);color:var(--warn);border-radius:10px;padding:10px 12px;font-size:14px;margin-top:12px}
+.warn[hidden]{display:none}
+pre{white-space:pre-wrap;word-break:break-word;margin:0;font:13px/1.5 ui-monospace,Menlo,Consolas,monospace;max-height:60vh;overflow:auto}
+.meter{height:6px;background:var(--line);border-radius:6px;overflow:hidden;margin:10px 0 14px}
+.meter i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s}
+footer{max-width:1100px;margin:auto;padding:8px 16px 40px;color:var(--mute);font-size:13px}
+</style>
+</head>
+<body>
+<header>
+  <h1>readme<span>.life</span></h1>
+  <p>If you were in hospital tomorrow, what would your people need to know? Write it once, keep it current, hand it to the right people. Nothing leaves this page: no server, no account.</p>
+</header>
+<main>
+  <section>
+    <nav id="tabs" aria-label="Sections"></nav>
+    <div class="card" id="form"></div>
+  </section>
+  <section class="card" id="out">
+    <h2>Your readme.life</h2>
+    <div class="meter" aria-hidden="true"><i id="meter"></i></div>
+    <div class="row" style="margin:0 0 12px">
+      <button class="btn" id="dl">Download readme.life</button>
+      <button class="btn ghost" id="ics">Yearly review reminder</button>
+      <button class="btn ghost" id="tell">Tell my people</button>
+      <button class="btn ghost" id="wipe">Clear</button>
+    </div>
+    <pre id="preview"></pre>
+  </section>
+</main>
+<footer>readme.life/0.1 · Not a will. A readme points to your will; it doesn't replace one. Never put passwords, PINs or account numbers here: say where they live instead.</footer>
+
+<script>
+const S=[
+ {id:"basics",t:"Basics",why:"Who this is about, and when it was last true.",f:[
+  ["name","Full name"],["dob","Date of birth","date"],["location","City / country"],
+  ["langs","Languages, faith, anything a stranger caring for you should know","area"]]},
+ {id:"first24",t:"First 24 hours",why:"The first things someone should do if you can't speak for yourself.",f:[
+  ["call_first","Call these people first, in this order","area","Partner — +1 555…\nSister Ana — +1 555…"],
+  ["urgent","Urgent things that will break without you","area","Kids pickup at 3pm, dog needs meds twice daily, payroll runs Fridays"],
+  ["keys","Where keys, phone PIN hint, and the 'emergency folder' are","area"]]},
+ {id:"people",t:"People",why:"Who does what. They'll each get a heads-up that you named them.",f:[
+  ["executor","Executor / person in charge"],["backup","Backup if they can't"],
+  ["guardian","Guardian for kids / dependants"],["pet_guardian","Who takes the pets"],
+  ["dont","Anyone who should NOT be involved (optional)","area"]]},
+ {id:"health",t:"Health & care",why:"What a doctor or your family needs on day one.",f:[
+  ["conditions","Conditions, meds, allergies","area"],["doctor","GP / main doctor"],
+  ["directive","Advance directive / health proxy: exists? where?"],
+  ["donor","Organ donation",["Yes","No","Ask my family","Not decided"]],
+  ["care","Care wishes (resuscitation, life support, where you'd want to be)","area"]]},
+ {id:"legal",t:"Will & legal",why:"The readme is not a will. This says where the real documents are.",f:[
+  ["will","Do you have a will?",["Yes — signed","Drafted, not signed","No","Not sure"]],
+  ["will_where","Where the original is"],["lawyer","Lawyer / notary contact"],
+  ["insurance","Life insurance: provider + where the policy is"],["poa","Power of attorney: who, where"]]},
+ {id:"money",t:"Money map",why:"Where things are, never the numbers. Banks, pensions, debts, who to notify.",f:[
+  ["banks","Banks & institutions (names only)","area","Chase checking, Fidelity 401k, Amex card"],
+  ["bills","Bills that auto-pay and from where","area"],["debts","Loans / mortgage / who's owed money","area"],
+  ["accountant","Accountant / financial adviser"]]},
+ {id:"digital",t:"Digital",why:"Where the keys are, not the keys.",f:[
+  ["pwm","Password manager + where its emergency kit is","text","1Password — emergency kit in the fire safe"],
+  ["phone","Phone & laptop: how should someone get in?","area"],
+  ["legacy","Legacy contacts set? (Apple, Google, Facebook…)","area"],
+  ["accounts","Accounts to memorialise / delete / keep running","area"]]},
+ {id:"home",t:"Home & pets",why:"The physical stuff that quietly falls apart.",f:[
+  ["home","Rent / own, landlord or mortgage contact"],["utilities","Utilities & who to call","area"],
+  ["pets","Pets: names, vet, food, meds, quirks","area"],["car","Vehicles: where, papers, keys"]]},
+ {id:"wishes",t:"Wishes",why:"Optional. The part people regret not knowing.",f:[
+  ["funeral","Funeral / ceremony / burial or cremation","area"],
+  ["music","Music, readings, who speaks","area"],["belongings","Things that should go to someone specific","area"],
+  ["notes","Notes to specific people","area"]]}
+];
+const KEY="readme.life.draft.v0";
+let data={},cur=0;
+try{data=JSON.parse(localStorage.getItem(KEY)||"{}")}catch(e){data={}}
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const SECRET=/(password|passcode|pin)\s*[:=]\s*\S|\b\d{12,19}\b|\b\d{3}-\d{2}-\d{4}\b|seed phrase/i;
+
+function save(){try{localStorage.setItem(KEY,JSON.stringify(data))}catch(e){}}
+function filled(sec){return sec.f.some(([k])=>(data[k]||"").trim())}
+
+function tabs(){
+ $("#tabs").innerHTML=S.map((s,i)=>`<button data-i="${i}" aria-current="${i===cur}" class="${filled(s)?"done":""}">${s.t}</button>`).join("");
+}
+function form(){
+ const s=S[cur];
+ $("#form").innerHTML=`<h2>${s.t}</h2><p class="why">${s.why}</p>`+
+  s.f.map(([k,l,type,ph])=>{
+   const v=esc(data[k]||""),p=ph?` placeholder="${esc(ph)}"`:"";
+   let c;
+   if(Array.isArray(type))c=`<select id="${k}"><option value=""></option>${type.map(o=>`<option${data[k]===o?" selected":""}>${esc(o)}</option>`).join("")}</select>`;
+   else if(type==="area")c=`<textarea id="${k}"${p}>${v}</textarea>`;
+   else c=`<input id="${k}" type="${type==="date"?"date":"text"}" value="${v}"${p}>`;
+   return `<label for="${k}">${l}</label>${c}`;
+  }).join("")+
+  `<div class="warn" id="secret" hidden>That looks like a password, PIN or account number. Say where it's kept instead — this file gets shared.</div>
+   <div class="row"><button class="btn ghost" id="prev"${cur?"":" disabled"}>Back</button>
+   <button class="btn" id="next">${cur<S.length-1?"Next: "+S[cur+1].t:"Done — download below"}</button></div>`;
+}
+function md(){
+ const today=new Date().toISOString().slice(0,10);
+ let o=`---\nformat: readme.life/0.1\nname: ${JSON.stringify(data.name||"")}\nupdated: ${today}\nreview: yearly\n---\n\n# readme.life — ${data.name||"(your name)"}\n\n> Not a will. This file says where things are and what I want. Last updated ${today}.\n`;
+ for(const s of S){
+  const rows=s.f.filter(([k])=>(data[k]||"").trim());
+  if(!rows.length)continue;
+  o+=`\n## ${s.t}\n`;
+  for(const [k,l] of rows){
+   const v=data[k].trim();
+   o+=v.includes("\n")?`\n**${l}**\n\n${v.split("\n").map(x=>"- "+x.replace(/^[-*]\s*/,"")).join("\n")}\n`:`\n**${l}:** ${v}\n`;
+  }
+ }
+ return o;
+}
+function render(){
+ $("#preview").textContent=md();
+ const n=S.filter(filled).length;$("#meter").style.width=(n/S.length*100)+"%";
+ const any=S.flatMap(s=>s.f).some(([k])=>SECRET.test(data[k]||""));
+ const w=$("#secret");if(w)w.hidden=!any;
+ tabs();
+}
+function go(i){cur=i;form();render();window.scrollTo({top:0,behavior:"smooth"})}
+function file(name,type,body){
+ const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([body],{type}));a.download=name;
+ document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);
+}
+
+document.addEventListener("input",e=>{if(e.target.id&&e.target.closest("#form")){data[e.target.id]=e.target.value;save();render()}});
+document.addEventListener("click",e=>{
+ const t=e.target;
+ if(t.dataset.i)go(+t.dataset.i);
+ else if(t.id==="next"){cur<S.length-1?go(cur+1):$("#out").scrollIntoView({behavior:"smooth"})}
+ else if(t.id==="prev"&&cur)go(cur-1);
+ else if(t.id==="dl")file("readme.life.md","text/markdown",md());
+ else if(t.id==="ics"){
+  const d=new Date();d.setFullYear(d.getFullYear()+1);const ds=d.toISOString().slice(0,10).replace(/-/g,"");
+  const uid=Date.now()+"@readme.life";
+  file("readme-life-review.ics","text/calendar",["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//readme.life//0.1//EN","BEGIN:VEVENT",`UID:${uid}`,`DTSTAMP:${new Date().toISOString().replace(/[-:]/g,"").slice(0,15)}Z`,`DTSTART;VALUE=DATE:${ds}`,"RRULE:FREQ=YEARLY","SUMMARY:Review my readme.life","DESCRIPTION:15 minutes. New people? New accounts? Moved? Update it and re-send.","BEGIN:VALARM","TRIGGER:-P1D","ACTION:DISPLAY","DESCRIPTION:readme.life review tomorrow","END:VALARM","END:VEVENT","END:VCALENDAR"].join("\r\n"));
+ }
+ else if(t.id==="tell"){
+  const who=["executor","backup","guardian","pet_guardian"].map(k=>data[k]).filter(Boolean).join(", ");
+  const body=`Hi,\n\nI've written a readme.life — a short file that says where my important things are and what I'd want if I couldn't tell you myself. I've named you in it${who?" ("+who+")":""}.\n\nNothing's wrong. I just didn't want you guessing. I'll send you the file / tell you where it's kept.\n\n${data.name||""}`;
+  location.href=`mailto:?subject=${encodeURIComponent("I named you in my readme.life")}&body=${encodeURIComponent(body)}`;
+ }
+ else if(t.id==="wipe"&&confirm("Clear everything on this device?")){data={};try{localStorage.removeItem(KEY)}catch(e){}go(0)}
+});
+go(0);
+</script>
+</body>
+</html>
