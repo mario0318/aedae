@@ -29,6 +29,8 @@ if (Test-Path -LiteralPath $pagesRoot) {
 New-Item -ItemType Directory -Path $pagesRoot | Out-Null
 
 $headerText = [IO.File]::ReadAllText((Join-Path $PSScriptRoot '_headers.template'))
+# Cloudflare parses _headers line by line: always write LF, even from a CRLF checkout on Windows.
+$headerText = $headerText -replace "`r`n", "`n"
 $surfaces = @('tech', 'world', 'life', 'live', 'online')
 foreach ($surface in $surfaces) {
     $bundle = Join-Path $pagesRoot $surface

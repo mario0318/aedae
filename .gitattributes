@@ -1,0 +1,2 @@
+# Cloudflare Pages parses _headers line by line; keep it LF on every platform.
+web/deploy/_headers.template text eol=lf

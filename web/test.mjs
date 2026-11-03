@@ -18,8 +18,8 @@ const rejects = (action, pattern, label) => {
 validateSurfaceRegistry(surfaces);
 check(true, 'production claim registry accepted');
 
-const siteSource = await readFile('src/site.mjs', 'utf8');
-const taskSource = await readFile('../tasks.md', 'utf8');
+const siteSource = (await readFile('src/site.mjs', 'utf8')).replace(/\r\n/g, '\n');
+const taskSource = (await readFile('../tasks.md', 'utf8')).replace(/\r\n/g, '\n');
 const referencedTasks = [...new Set([...siteSource.matchAll(/\bT-\d{3}\b/g)].map(match => match[0]))];
 for (const task of referencedTasks) {
   check(new RegExp(`^##+ ${task}\\b`, 'm').test(taskSource), `site citation exists: ${task}`);
@@ -47,7 +47,7 @@ adjacentSourceTrap.tech.facts[1].source = 'later source must not satisfy the fir
 rejects(() => validateSurfaceRegistry(adjacentSourceTrap), /tech fact 0 has no source/,
   'later claim source cannot satisfy an unsourced earlier claim');
 
-const css = await readFile('src/styles.css', 'utf8');
+const css = (await readFile('src/styles.css', 'utf8')).replace(/\r\n/g, '\n');
 for (const selector of ['.mark', '.nav a']) {
   const rule = css.match(new RegExp(`\\${selector.replace(' ', '\\s+')}\\{([^}]*)\\}`));
   const minimum = rule?.[1].match(/min-height:\s*(\d+)px/);
@@ -79,8 +79,8 @@ for (const surface of ['tech', 'world', 'life', 'live', 'online']) {
     `${surface} accent meets dark-mode small-text contrast`);
 }
 
-const builderHtml = await readFile('src/readme/index.html', 'utf8');
-const builderJs = await readFile('src/readme/app.js', 'utf8');
+const builderHtml = (await readFile('src/readme/index.html', 'utf8')).replace(/\r\n/g, '\n');
+const builderJs = (await readFile('src/readme/app.js', 'utf8')).replace(/\r\n/g, '\n');
 validateBuilderPage(builderHtml);
 check(true, 'readme builder page accepted');
 validateBuilderScript(builderJs);
@@ -143,10 +143,12 @@ check(render('life', 'colophon').includes('heuristic nudge, not a guarantee'), '
 check(/const ESSENTIALS=\["first24","people","health"\];/.test(builderJs), 'essentials path is First 24 hours, People, Health & care');
 check(/id="essentials"/.test(builderJs) && /id="full"/.test(builderJs), 'builder offers essentials and full entry points');
 check(/src="\/life\/readme\/done\.svg"[^>]*referrerpolicy="no-referrer"/.test(builderHtml), 'completion image sends no referrer');
-const headersTemplate = await readFile('deploy/_headers.template', 'utf8');
+const headersTemplate = (await readFile('deploy/_headers.template', 'utf8')).replace(/\r\n/g, '\n');
 check(/# .*img-src 'self' is intentional[\s\S]*\/life\/readme\/\*\n  ! Content-Security-Policy\n  Content-Security-Policy: [^\n]*img-src 'self'[^\n]*connect-src 'none'/.test(headersTemplate),
   'headers file documents the intentional img-src and keeps connect-src none');
-const deployScript = await readFile('deploy/deploy.ps1', 'utf8');
+check(/\$headerText = \$headerText -replace "`r`n", "`n"/.test((await readFile('deploy/prepare.ps1', 'utf8')).replace(/\r\n/g, '\n')),
+  'prepare writes _headers with LF line endings');
+const deployScript = (await readFile('deploy/deploy.ps1', 'utf8')).replace(/\r\n/g, '\n');
 check(/\[string\[\]\]\$Surface = @\('life'\)/.test(deployScript), 'deploy defaults to the life surface only');
 check(/'--branch', \$Branch/.test(deployScript) && /ValidateScript\(\{ \$_ -ne 'main' \}\)/.test(deployScript),
   'deploy always uses a non-production preview branch');
@@ -164,7 +166,7 @@ check(/\[switch\]\$DryRun/.test(deployScript) && /DRY RUN: \$wranglerCommand pag
   check(/--branch \$Branch --config `"\$config`""/.test(deployScript) && /'--branch', \$Branch, '--config'/.test(deployScript),
     'dry run prints the same $Branch variable the real deploy sends');
 }
-const membershipTemplate = await readFile('src/readme/membership.html', 'utf8');
+const membershipTemplate = (await readFile('src/readme/membership.html', 'utf8')).replace(/\r\n/g, '\n');
 const tally = 'https://tally.so/r/abc123';
 validateMembershipPage(renderMembershipPage(membershipTemplate, ''), '');
 check(true, 'membership page renders without a waitlist link');
@@ -175,7 +177,7 @@ check(/isn't open yet/.test(withTally) && /Nothing is charged today/.test(withTa
 rejects(() => renderMembershipPage(membershipTemplate, 'https://evil.test/r/x'), /Tally share link/, 'non-Tally waitlist URL rejected');
 rejects(() => validateMembershipPage(withTally.replace('</main>', '<a href="https://x.test/">x</a></main>'), tally), /disallowed href/, 'membership page rejects other external links');
 rejects(() => validateMembershipPage(withTally.replace('</body>', '<script src="/x.js"></script></body>'), tally), /must be static/, 'membership page rejects script');
-const config = JSON.parse(await readFile('src/readme/config.json', 'utf8'));
+const config = JSON.parse((await readFile('src/readme/config.json', 'utf8')).replace(/\r\n/g, '\n'));
 check(config.waitlistUrl === '' || waitlistPattern.test(config.waitlistUrl), 'configured waitlist URL is empty or a Tally link');
 
 const lifeHome = render('life', 'index');
