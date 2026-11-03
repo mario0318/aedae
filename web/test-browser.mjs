@@ -85,7 +85,8 @@ try {
   check(/## First 24 hours[\s\S]*## People[\s\S]*## Health & care/.test(text) && !/## Basics|## Money map/.test(text),
     'essentials download contains the three sections and nothing else');
   check((await page.textContent('#lives')) === '3 of 3 essentials written', 'progress counts essentials');
-  await page.waitForFunction(() => document.querySelector('.donemark').complete);
+  // Poll with evaluate(): waitForFunction uses string eval in some Playwright versions, which our CSP blocks.
+  for (let i = 0; i < 50 && !(await page.evaluate(() => document.querySelector('.donemark').complete)); i++) await page.waitForTimeout(100);
   check(fetched.filter(u => u.endsWith('/done.svg')).length >= 1, 'download fetches the completion image');
   check(await page.isVisible('#member'), 'fake-door button appears after download');
 
