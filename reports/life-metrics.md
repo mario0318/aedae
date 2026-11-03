@@ -37,33 +37,25 @@ sends no referrer.
 
 ## Order of operations
 
-1. **Tally form**: one email field, "Membership isn't open yet — tell me if it opens". Put its
-   share link in `web/src/readme/config.json` → `waitlistUrl`. The build rejects anything that
-   isn't a `https://tally.so/r/...` link. If empty, the page shows "sign-up list coming soon" and no
-   link, so there is never a dead link.
-2. **Check the deploy script before running it** (PowerShell, on Windows):
-   from the repo root, `.\web\deploy\deploy.ps1 -DryRun`. It also runs `prepare.ps1`, so a syntax
-   error in either script shows up here. It must print `--project-name aedae-life --branch preview`
-   with both paths absolute and in double quotes, then "DRY RUN complete". Afterwards `git status`
-   must be clean. Use `[System.Management.Automation.Language.Parser]::ParseFile` only if it fails
-   in a way you can't pin down (it lists every error with line numbers).
-   Before the first real run: in the Pages dashboard, confirm `aedae-life`'s production branch is
-   `main`, and save `curl -I` of the production URL.
-3. **Preview deploy, life site only**: `deploy.ps1` now defaults to `-Surface life` and always
-   deploys to a non-production branch (`preview`), so a bound custom domain is never touched. From a
-   Linux session with Cloudflare secrets, the equivalent is:
-   `npx wrangler@4 pages deploy web/preview/pages/life --project-name aedae-life --branch preview`
-   (after building and preparing the bundle).
-4. **Verify**: `node web/deploy/verify-preview.mjs https://preview.aedae-life.pages.dev`. It checks
-   exactly one CSP and the required directives, scans the served files, confirms the Tally link
-   returns 200, checks `done.svg` is served, then runs the 20 browser checks on the real origin.
-   "Exactly one CSP" is a hard fail: Cloudflare joins duplicate headers with a comma, and browsers
-   enforce the intersection of both policies, which silently breaks resources. Afterwards, `curl -I`
-   the production URL again: it must be unchanged.
-5. **Confirm per-path counts**: in Cloudflare analytics, check that `/life/readme/done.svg` and
+Everything below runs in GitHub Actions (see `web/README.md`, "Running checks and deploys from any
+session"), so it doesn't depend on the owner's PC being online.
+
+1. **One-time secrets** in GitHub: `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`,
+   `TALLY_API_KEY`. Optionally, a required reviewer on the `life-preview` environment.
+2. **Waitlist form:** run the workflow with `create_waitlist_form`. Put the printed
+   `https://tally.so/r/...` link in `web/src/readme/config.json` → `waitlistUrl` and push. The build
+   rejects anything that isn't a Tally share link. If empty, the page shows "sign-up list coming
+   soon" and no link, so there is never a dead link.
+3. **Checks:** every push runs Linux tests and browser checks, plus the Windows PowerShell 5.1 dry
+   run. It was verified manually once on the owner's ThinkPad (2026-11-03), and that run caught the
+   CRLF `_headers` bug.
+4. **Preview deploy + verify:** run the workflow with `deploy_preview`. Life site only, `preview`
+   branch only. It fails if production content changes, then runs `verify-preview.mjs` against
+   `https://preview.aedae-life.pages.dev`. "Exactly one CSP" is a hard fail: Cloudflare joins
+   duplicate headers with a comma, and browsers enforce the intersection.
+5. **Confirm per-path counts:** in Cloudflare analytics, check that `/life/readme/done.svg` and
    `/life/readme/membership/` appear as separate paths on your plan. If not, use the GraphQL
-   analytics API or Logpush and note which here. **No denominator means no gate, so find out
-   before spending.**
+   analytics API or Logpush and note which here. **No denominator means no gate.**
 6. Then the 10-person watch, then the $150.
 
 ## Headline

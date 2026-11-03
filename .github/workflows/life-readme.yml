@@ -1,0 +1,170 @@
+# Life README: checks on every push, plus on-demand preview deploy and waitlist form creation.
+# Lets any session (cloud or local) test on Linux AND Windows PowerShell 5.1, deploy a preview and
+# verify it, without needing the owner's PC to be online.
+#
+# Secrets (repo Settings > Secrets and variables > Actions):
+#   CLOUDFLARE_API_TOKEN   Cloudflare API token with "Cloudflare Pages: Edit"   (deploy only)
+#   CLOUDFLARE_ACCOUNT_ID  Cloudflare account id                                 (deploy only)
+#   TALLY_API_KEY          Tally API key                                         (waitlist form only)
+# Deploys only ever go to the Pages "preview" branch, never production. The deploy job uses the
+# "life-preview" environment: add a required reviewer there to make every deploy need a human click.
+name: Life README
+
+on:
+  push:
+    paths: ['web/**', '.github/workflows/life-readme.yml', '.gitattributes']
+  pull_request:
+    paths: ['web/**', '.github/workflows/life-readme.yml', '.gitattributes']
+  workflow_dispatch:
+    inputs:
+      deploy_preview:
+        description: 'Deploy the life site to the Cloudflare Pages preview branch (never production), then verify it'
+        type: boolean
+        default: false
+      create_waitlist_form:
+        description: 'Create (or find) the Tally membership waitlist form and print its link'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: life-readme-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  linux:
+    name: Tests + browser checks (Linux)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node test.mjs
+      - run: node build.mjs
+      - name: Browser acceptance checks
+        env:
+          REQUIRE_BROWSER: '1'
+        run: |
+          npm install --no-save --no-package-lock playwright@1.49.1
+          npx playwright install --with-deps chromium
+          node test-browser.mjs
+
+  windows:
+    name: Tests + deploy dry run (Windows PowerShell 5.1)
+    runs-on: windows-2022
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: powershell
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Tests (CRLF checkout)
+        run: |
+          cd web
+          node test.mjs
+          if ($LASTEXITCODE) { exit 1 }
+      - name: deploy.ps1 -DryRun
+        run: |
+          $PSVersionTable.PSVersion.ToString()
+          $out = powershell -NoProfile -ExecutionPolicy Bypass -File .\web\deploy\deploy.ps1 -DryRun *>&1 | Out-String -Width 4096
+          $code = $LASTEXITCODE
+          $out
+          if ($code) { throw "dry run exited $code" }
+          $deployLines = @($out -split "`n" | Where-Object { $_ -like 'DRY RUN: *pages deploy*' })
+          if ($deployLines.Count -ne 1) { throw "expected exactly one deploy line, got $($deployLines.Count)" }
+          foreach ($need in @('--project-name aedae-life --branch preview', 'pages\life"', 'wrangler.life.toml"')) {
+            if (-not $deployLines[0].Contains($need)) { throw "deploy line is missing: $need" }
+          }
+          if (-not $out.Contains('DRY RUN complete: nothing was uploaded')) { throw 'dry run did not finish cleanly' }
+          $headers = [IO.File]::ReadAllText((Join-Path $PWD 'web\preview\pages\life\_headers'))
+          if ($headers.Contains("`r")) { throw '_headers contains CRLF' }
+          $dirty = git status --porcelain
+          if ($dirty) { throw "dry run left changes: $dirty" }
+          'Windows dry run OK'
+
+  waitlist-form:
+    name: Create Tally waitlist form
+    if: github.event_name == 'workflow_dispatch' && inputs.create_waitlist_form
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Create or find form
+        env:
+          TALLY_API_KEY: ${{ secrets.TALLY_API_KEY }}
+        run: |
+          if [ -z "$TALLY_API_KEY" ]; then echo "::error::TALLY_API_KEY secret is not set"; exit 1; fi
+          node web/deploy/create-tally-form.mjs | tee out.txt
+          url=$(grep '^WAITLIST_URL=' out.txt | cut -d= -f2-)
+          echo "Waitlist form: $url  (put it in web/src/readme/config.json as waitlistUrl)" >> "$GITHUB_STEP_SUMMARY"
+
+  deploy-preview:
+    name: Deploy preview (life only, never production)
+    if: github.event_name == 'workflow_dispatch' && inputs.deploy_preview
+    needs: [linux, windows]
+    runs-on: windows-2022
+    timeout-minutes: 15
+    environment: life-preview
+    defaults:
+      run:
+        shell: powershell
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check secrets
+        run: |
+          if (-not $env:CLOUDFLARE_API_TOKEN -or -not $env:CLOUDFLARE_ACCOUNT_ID) { throw 'CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID secrets are required' }
+      - name: Production snapshot (before)
+        id: before
+        run: |
+          try { $h = [BitConverter]::ToString([Security.Cryptography.SHA256]::Create().ComputeHash([Text.Encoding]::UTF8.GetBytes((Invoke-WebRequest -UseBasicParsing https://aedae-life.pages.dev/life/readme/).Content))) } catch { $h = 'none' }
+          "hash=$h" >> $env:GITHUB_OUTPUT
+      - name: Deploy (deploy.ps1, preview branch)
+        run: |
+          powershell -NoProfile -ExecutionPolicy Bypass -File .\web\deploy\deploy.ps1 -Surface life -Branch preview
+          if ($LASTEXITCODE) { exit 1 }
+      - name: Production unchanged (after)
+        run: |
+          try { $h = [BitConverter]::ToString([Security.Cryptography.SHA256]::Create().ComputeHash([Text.Encoding]::UTF8.GetBytes((Invoke-WebRequest -UseBasicParsing https://aedae-life.pages.dev/life/readme/).Content))) } catch { $h = 'none' }
+          if ("$h" -ne "${{ steps.before.outputs.hash }}") { throw "production content changed during a preview deploy" }
+          'Production unchanged'
+
+  verify-preview:
+    name: Verify preview
+    needs: deploy-preview
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Headers, files and browser checks on the live preview
+        env:
+          REQUIRE_BROWSER: '1'
+        run: |
+          npm install --no-save --no-package-lock playwright@1.49.1
+          npx playwright install --with-deps chromium
+          sleep 20
+          node deploy/verify-preview.mjs https://preview.aedae-life.pages.dev

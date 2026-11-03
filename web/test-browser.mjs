@@ -8,8 +8,9 @@ import {createRequire} from 'node:module';
 
 let chromium;
 try { ({chromium} = createRequire(import.meta.url)('playwright')); } catch {
-  console.log('SKIP browser checks: playwright is not installed');
-  process.exit(0);
+  // CI sets REQUIRE_BROWSER=1 so a missing browser fails loudly instead of skipping.
+  console.log(`${process.env.REQUIRE_BROWSER ? 'FAIL' : 'SKIP'} browser checks: playwright is not installed`);
+  process.exit(process.env.REQUIRE_BROWSER ? 1 : 0);
 }
 
 const dist = join(dirname(fileURLToPath(import.meta.url)), 'dist');
