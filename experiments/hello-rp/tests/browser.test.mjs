@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
 import { test } from 'node:test';
 import { chromium } from 'playwright-core';
-import { startServer } from '../server.mjs';
+import { withServerAndBrowser } from './harness.mjs';
 
 const browserPaths = [
   'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
@@ -41,9 +41,7 @@ function tamperBase64JSON(encoded, mutate) {
 
 test('virtual browser registers, authenticates, and rejects adversarial responses', async () => {
   assert.ok(executablePath, 'Chrome or Edge is required for CDP virtual WebAuthn; do not silently skip this gate');
-  const { server, origin } = await startServer({ port: 0 });
-  const browser = await chromium.launch({ executablePath, headless: true });
-  try {
+  await withServerAndBrowser(() => chromium.launch({ executablePath, headless: true }), async ({ browser, origin }) => {
     const contextA = await browser.newContext();
     const pageA = await contextA.newPage();
     const cdp = await contextA.newCDPSession(pageA);
@@ -135,8 +133,5 @@ test('virtual browser registers, authenticates, and rejects adversarial response
     await pageC.waitForFunction(() => document.getElementById('status').textContent.includes('Signed in with'), null, { timeout: 5000 }).catch(async () => {
       throw new Error(`UI authentication: ${await pageC.locator('#status').textContent()}`);
     });
-  } finally {
-    await browser.close();
-    await new Promise((resolve) => server.close(resolve));
-  }
+  });
 });

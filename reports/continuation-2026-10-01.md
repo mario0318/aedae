@@ -15,6 +15,7 @@ Scope: local verification and handoff reconciliation; no release or protocol aut
 - The first preview test invocation from the checkout root failed because that version of the test expects `web/` as its working directory. The documented invocation from `web/` passed; no source change was necessary.
 - Public issue https://github.com/microsoft/Windows-classic-samples/issues/431 was retrieved and shows open with no answer displayed. The web retrieval reports a two-day-old crawl; the private email thread was not checked. Neither source establishes a new platform contract.
 - The protected source scanner still uses `-ErrorAction SilentlyContinue` at both scan sites. The existing human-owned remediation proposal remains applicable.
+  This was checked in the main checkout at `6c672e6`. Commit `8ddf603` on the hello-rp branch already applies `-ErrorAction Stop` and the locked-file fixture; see the T-014 entry in `tasks.md` for what is still open there.
 
 ## Next work by owner
 

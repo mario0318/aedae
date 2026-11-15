@@ -642,6 +642,14 @@ bytes. It neither relaxes T-019/T-015 nor supplies a production signing contract
   returned `APPROVE_WITH_REQUIRED_CHANGES` because the source scan suppresses
   file-read errors. See `reports/security-findings.md`. T-014 stays IN_REVIEW;
   only a human-authored, human-approved protected-path PR may fix that gate.
+- **Remediation applied, not yet reviewed or approved (commit `8ddf603`, 2026-09-29):** both
+  `Select-String` scan sites in `scripts/ContractCheck.psm1` now use `-ErrorAction Stop`, and
+  `scripts/test-webauthnplugin-contract-guard.ps1` adds a negative fixture that holds a selected
+  source file open with `FileShare.None` and requires `Invoke-AeDaeSourceCheck` to throw. That
+  changes two of the four protected hashes, so the 2026-09-28 packet no longer describes the
+  candidate. Still open: re-freeze all four hashes, prove `verify-webauthnplugin-contract.ps1`
+  and `build.ps1` exit nonzero on the locked fixture (the new test calls the function
+  directly), an independent review of the new diff, and human code-owner approval of the PR.
 
 ### T-012 – Final security review gate
 

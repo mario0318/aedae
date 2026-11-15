@@ -1,7 +1,10 @@
 # T-014 protected-path remediation proposal for the human code owner
 
 Date: 2026-09-28  
-Status: proposal only; **no protected file edited by an agent**
+Status: proposal only; **no protected file edited by an agent**  
+Update: commit `8ddf603` (2026-09-29) applies the `-ErrorAction Stop` change at both
+sites and steps 1 to 3 of the negative test. Step 4 and the merge gate below are
+still open; the change has no independent review or code-owner approval yet.
 
 ## Required fail-closed correction
 

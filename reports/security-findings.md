@@ -86,6 +86,12 @@ review plus human code-owner PR approval. Do not copy the older 2026-09-11
 hashes; the three script hashes have changed even though the diff shape is
 similar.
 
+Remediation status: commit `8ddf603` (2026-09-29) applies the code change and
+the locked-file negative fixture. This finding is not closed by it. The new
+hashes have not been frozen or independently reviewed, propagation through the
+verifier and build wrapper is not yet tested, and no human code-owner approval
+exists for the change.
+
 ### Other review observations
 
 - **Low — SQLite token coverage:** the four literal tokens identify the known
