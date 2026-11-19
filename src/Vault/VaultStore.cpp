@@ -504,7 +504,12 @@ VaultResult<std::vector<CredentialRecord>> VaultStore::FindCredentialsForRp(cons
 }
 VaultResult<CredentialRecord> VaultStore::GetCredentialById(const std::wstring& rp, const std::vector<BYTE>& id)
 {
-    auto result = ListCredentials();
+    auto result = ReadResult([&]() -> VaultResult<std::vector<CredentialRecord>>
+    {
+        Context c(path_);
+        auto snapshot = Load(c);
+        return {VaultError::none, std::move(snapshot.records), c.abandoned};
+    });
     if (!result) return {result.error, std::nullopt, result.recovered_abandoned_mutex};
     for (const auto& r : *result.value)
         if (r.rp_id == rp && r.credential_id == id)
