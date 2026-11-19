@@ -1,20 +1,23 @@
 # T-014 protected-path remediation proposal for the human code owner
 
 Date: 2026-09-28  
-Status: proposal only; **no protected file edited by an agent**
-Update: commit `8ddf603` (2026-09-29) applies the `-ErrorAction Stop` change at both
-sites and steps 1 to 3 of the negative test. Step 4 and the merge gate below are
-still open; the change has no independent review or code-owner approval yet.
+Status: historical proposal; the current candidate remains unapproved.
+Update (2026-11-18): commit `8ddf603` applied `-ErrorAction Stop` at both scan
+sites and added the locked-file negative fixture. The guard test passes. The
+current hashes are in `T-014-current-review-packet-2026-09-28.md`. Propagation
+through the verifier and build wrapper, independent review, and code-owner
+approval remain open.
 
 ## Required fail-closed correction
 
-In `scripts/ContractCheck.psm1`, the two `Select-String` calls inside
-`Invoke-AeDaeSourceCheck` currently end with `-ErrorAction SilentlyContinue`.
-The code owner should replace **both** with `-ErrorAction Stop`, preserving
-the existing prohibited-token checks and diagnostics. A suppressed read error
-currently yields a false clean result (confirmed with a missing-file probe).
+The 2026-09-28 candidate used `-ErrorAction SilentlyContinue` at both
+`Select-String` calls inside `Invoke-AeDaeSourceCheck`. Commit `8ddf603`
+replaced both with `-ErrorAction Stop`, preserving the prohibited-token checks
+and diagnostics. The earlier suppressed read error was confirmed with a
+missing-file probe; it is not a finding against the current candidate.
 
-Add a negative test to `scripts/test-webauthnplugin-contract-guard.ps1`:
+The locked-file negative fixture now in `scripts/test-webauthnplugin-contract-guard.ps1`
+implements steps 1 to 3 below; step 4 remains open:
 
 1. Create a disposable source fixture under a disposable test root.
 2. Hold the selected file open with `FileShare.None` while calling the same
@@ -24,7 +27,7 @@ Add a negative test to `scripts/test-webauthnplugin-contract-guard.ps1`:
 4. Confirm `scripts/verify-webauthnplugin-contract.ps1` and
    `scripts/build.ps1` propagate that failure to a nonzero process exit.
 
-The human-owned amendment should also decide whether the four SQLite literal
+The remaining protected-file review should also decide whether the four SQLite literal
 tokens cover ADR-002's intended dependency ban and whether generated source
 in `build/` or `artifacts/` needs scanning. T-018 MED-02's distinct diagnostic
 for stabilized upstream v2 names remains a separate protected-file proposal.

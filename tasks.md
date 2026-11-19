@@ -636,18 +636,18 @@ bytes. It neither relaxes T-019/T-015 nor supplies a production signing contract
   exact SHA-256 of all four protected files, the 30-insertion/two-deletion diff, local Debug/Release
   evidence, hosted-CI evidence boundary and five required adversarial review questions. It is a
   packet, not an approval; the protected candidate must not be changed or merged by an agent.
-- **2026-09-28 re-review:** the old packet hashes are no longer current. The
-  exact-current protected diff is frozen in
-  `reports/T-014-current-review-packet-2026-09-28.md`; independent review
-  returned `APPROVE_WITH_REQUIRED_CHANGES` because the source scan suppresses
-  file-read errors. See `reports/security-findings.md`. T-014 stays IN_REVIEW;
-  only a human-authored, human-approved protected-path PR may fix that gate.
+- **2026-09-28 re-review (historical candidate):** independent review returned
+  `APPROVE_WITH_REQUIRED_CHANGES` because the source scan suppressed file-read
+  errors. That finding and its former hashes are historical; see
+  `reports/security-findings.md`. T-014 remains IN_REVIEW for the current
+  protected-file candidate, not for an unapplied scanner fix.
 - **Remediation applied, not yet reviewed or approved (commit `8ddf603`, 2026-09-29):** both
   `Select-String` scan sites in `scripts/ContractCheck.psm1` now use `-ErrorAction Stop`, and
   `scripts/test-webauthnplugin-contract-guard.ps1` adds a negative fixture that holds a selected
-  source file open with `FileShare.None` and requires `Invoke-AeDaeSourceCheck` to throw. That
-  changes two of the four protected hashes, so the 2026-09-28 packet no longer describes the
-  candidate. Still open: re-freeze all four hashes, prove `verify-webauthnplugin-contract.ps1`
+  source file open with `FileShare.None` and requires `Invoke-AeDaeSourceCheck` to throw. The
+  four current hashes and remaining review questions are recorded in
+  `reports/T-014-current-review-packet-2026-09-28.md` (updated 2026-11-18).
+  Still open: prove `verify-webauthnplugin-contract.ps1`
   and `build.ps1` exit nonzero on the locked fixture (the new test calls the function
   directly), an independent review of the new diff, and human code-owner approval of the PR.
 

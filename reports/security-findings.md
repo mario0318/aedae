@@ -58,13 +58,15 @@ production identity, or the Windows plugin protocol lane.
 - An RP controls only its own origin. It cannot serve as a selectable provider
   for third-party websites or close T-019/T-015.
 
-## T-014 — current protected contract-checker candidate
+## T-014 — 2026-09-28 protected contract-checker candidate (historical)
 
 Reviewed: 2026-09-28 against `origin/main` at `ef173ca`  
-Disposition: APPROVE_WITH_REQUIRED_CHANGES for this exact candidate; do not
-merge or mark T-014 done. This review does not authorize an agent to edit the
-four human-only contract paths. The exact packet and full hashes are in
-`reports/T-014-current-review-packet-2026-09-28.md`.
+Disposition: APPROVE_WITH_REQUIRED_CHANGES for the 2026-09-28 candidate only;
+do not treat it as a review of the current candidate or mark T-014 done. This
+review does not authorize an agent to edit the four human-only contract paths.
+The former hashes are retained in the commit history of
+`reports/T-014-current-review-packet-2026-09-28.md`; that packet now records
+the current candidate and remaining gate.
 
 ### Required finding
 
@@ -86,11 +88,12 @@ review plus human code-owner PR approval. Do not copy the older 2026-09-11
 hashes; the three script hashes have changed even though the diff shape is
 similar.
 
-Remediation status: commit `8ddf603` (2026-09-29) applies the code change and
-the locked-file negative fixture. This finding is not closed by it. The new
-hashes have not been frozen or independently reviewed, propagation through the
-verifier and build wrapper is not yet tested, and no human code-owner approval
-exists for the change.
+Remediation status (checked 2026-11-18): commit `8ddf603` applies the code
+change and locked-file negative fixture; the guard test passes. The read-error
+finding is remedied in code, while the current protected candidate remains
+unapproved. Its hashes are frozen in the updated packet. Propagation through
+the verifier and build wrapper has not been tested against a locked fixture,
+and independent review and human code-owner approval remain outstanding.
 
 ### Other review observations
 
