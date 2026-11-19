@@ -521,10 +521,17 @@ int wmain(int argc, wchar_t** argv)
         Check(static_cast<bool>(writer.Provision()), "restrictive creation");
         Check(static_cast<bool>(reader.ListCredentials()), "trusted owner and ACL accepted");
         Check(reader.AddCredential(Record(1)).error == VaultError::read_only, "snapshot rejects writes");
-        Check(static_cast<bool>(writer.AddCredential(Record(1))), "add");
+        auto stored = Record(1);
+        stored.user_handle = {1, 2, 3};
+        stored.public_key_cose = {4, 5, 6};
+        Check(static_cast<bool>(writer.AddCredential(stored)), "add");
         auto other = Record(1); other.rp_id = L"other.test"; other.id = L"other";
         Check(writer.AddCredential(other).error == VaultError::duplicate, "global credential identity");
-        Check(static_cast<bool>(reader.GetCredentialById(L"example.test", {1, 0})), "find by id");
+        auto found = reader.GetCredentialById(L"example.test", {1, 0});
+        Check(static_cast<bool>(found) && found.value->user_handle == stored.user_handle &&
+            found.value->public_key_cose == stored.public_key_cose &&
+            found.value->protected_private_key == stored.protected_private_key,
+            "find by id preserves stored blobs");
         Check(reader.GetCredentialById(L"other.test", {1, 0}).error == VaultError::not_found, "RP isolation");
         Check(reader.FindCredentialsForRp(L"example.test").value->size() == 1, "find RP");
         Check(reader.ListCredentials().value->at(0).protected_private_key.empty(), "metadata projection");
