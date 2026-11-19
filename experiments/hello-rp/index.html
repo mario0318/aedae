@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>aeDae local passkey experiment</title>
+  <link rel="stylesheet" href="/style.css">
+  <script src="/vendor.js" defer></script>
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <main>
+    <p class="eyebrow">LOCAL EXPERIMENT · NOT THE WINDOWS PLUGIN</p>
+    <h1>Try a passkey on this PC</h1>
+    <p>This page asks your browser for a passkey on <code>localhost</code>. It does not make aeDae a passkey provider for other sites.</p>
+    <p class="warning">Creating a real passkey may leave an entry in Windows or your browser even after this demo closes. The server forgets its public records when it stops.</p>
+    <div class="actions">
+      <button id="register" type="button">Create test passkey</button>
+      <button id="authenticate" type="button">Sign in</button>
+    </div>
+    <output id="status" role="status" aria-live="polite">Ready. No passkey operation has started.</output>
+  </main>
+</body>
+</html>

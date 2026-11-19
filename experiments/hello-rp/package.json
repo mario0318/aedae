@@ -1,0 +1,22 @@
+{
+  "name": "aedae-hello-rp-experiment",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Loopback-only WebAuthn relying-party experiment; not the aeDae plugin",
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "test:browser": "node tests/browser.test.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@simplewebauthn/browser": "14.0.0",
+    "@simplewebauthn/server": "14.0.3"
+  },
+  "devDependencies": {
+    "playwright-core": "1.63.0"
+  }
+}

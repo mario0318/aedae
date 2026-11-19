@@ -37,6 +37,15 @@ the missing authoritative-evidence requirement.
 **Local lane — OPEN.** Vault, key protection, UI, and repository governance are independent of the
 envelope question and proceed now against synthetic, non-credential data.
 
+**Separate RP experiment — OPEN, not a plugin implementation.** The owner approved a
+loopback-only standard browser WebAuthn proof of concept on 2026-09-28. It is governed
+by T-023 below and ADR-003. It cannot satisfy any paused protocol task or count as
+a system-wide authenticator launch.
+
+**Separate signature-boundary lab — OPEN, not a plugin implementation.** T-024 below
+may test the sample-observed signature boundary with ephemeral synthetic keys and
+bytes. It neither relaxes T-019/T-015 nor supplies a production signing contract.
+
 ---
 
 ## Local lane (open)
@@ -290,6 +299,14 @@ envelope question and proceed now against synthetic, non-credential data.
   `reports/T-018-protected-amendment-proposal.md` for human-authored MED-02/MED-05 changes and the
   three acceptable SDK-source decisions. T-018 is not done while CI is red and the protected
   amendments remain unapproved.
+- **2026-09-28 check:** PR #3 is still open and its listed Debug/Release hosted jobs
+  are red. The immutable SDK-source decision remains outstanding; no manifest
+  repin or CI bypass is authorized.
+- **2026-09-28 source investigation:** two hash-verified Microsoft C++ SDK
+  NuGet packages and the public `microsoft/webauthn` January 2026 headers do
+  not provide the exact three pinned plugin-contract headers. See
+  `reports/T-018-immutable-sdk-source-investigation-2026-09-28.md`. Neither
+  can be substituted into CI without a new reviewed source decision.
 
 ### T-022 – Lifecycle design revision (closes lifecycle review F1–F7, F9–F12)
 
@@ -370,6 +387,11 @@ envelope question and proceed now against synthetic, non-credential data.
 ### T-021 – Cloudflare Pages temporary preview deployment
 
 - Status: IN_PROGRESS
+- **2026-10-01 continuation:** local Git history records preview integration merged
+  as PR #6 (`ef173ca`). The existing `280c9f0` preview checkout has the same
+  `web/` tree; 46 website assertions and preparation of five 18-file bundles
+  passed again. Live publication remains unverified and separately authorized.
+  See `reports/continuation-2026-10-01.md` for current checks and remaining owners.
 - Owner: PACKAGER
 - Scope: Prepare five independent Cloudflare Pages preview deployments for the
   `web/` surfaces using `web/deploy/`. Publish only temporary `*.pages.dev`
@@ -448,6 +470,8 @@ envelope question and proceed now against synthetic, non-credential data.
     the email thread — the email stays open pending reply.
   - Not to be filed as a vulnerability report. This is a contract, documentation and supportability
     question; no exploitable defect has been demonstrated.
+  - **2026-09-28 public-channel check:** issue #431 remains open with no reply
+    shown. This does not check the private email thread and does not close G1/G2/G3.
 
 ### T-015 – Operation signature-verification gate design
 
@@ -598,20 +622,39 @@ envelope question and proceed now against synthetic, non-credential data.
 
 ### T-014 – Security review of the WebAuthn Plugin contract
 
-- Status: IN_REVIEW — historical narrow review only; current protected-script diff is not yet
-  approved. T-017 is closed.
+- Status: IN_REVIEW — code-owner sign-off for the current protected-script diff is
+  recorded on PR #7; independent security review remains open. T-017 is closed.
 - Approved scope: compiler-bound SDK/header contract integrity plus bootstrap COM lifetime.
 - Explicitly **not** covered: signature-envelope semantics, request authentication, transaction
   state machines, cancellation races, registration, credential handling, signing, Hello, or v2.
 - Note: the two HIGH findings belong to T-015 and T-016. Their open status is not a reason to hold
   T-014 open; the original completion criteria were circular and have been narrowed accordingly.
-  T-017's governance/rejection requirement is now satisfied. Before T-014 can be approved, freeze
-  and independently review the exact current protected-script diff and reconcile the stale formal
-  report. Then obtain human approval for the limited contract-integrity/bootstrap-lifetime scope.
+  T-017's governance/rejection requirement is now satisfied. The current
+  protected hashes are frozen and code-owner sign-off is recorded. Before
+  T-014 can be DONE, independently review that exact diff and reconcile the
+  formal report for the limited contract-integrity/bootstrap-lifetime scope.
 - **Frozen review input (2026-09-11):** `reports/T-014-protected-diff-review-packet.md` records the
   exact SHA-256 of all four protected files, the 30-insertion/two-deletion diff, local Debug/Release
   evidence, hosted-CI evidence boundary and five required adversarial review questions. It is a
   packet, not an approval; the protected candidate must not be changed or merged by an agent.
+- **2026-09-28 re-review (historical candidate):** independent review returned
+  `APPROVE_WITH_REQUIRED_CHANGES` because the source scan suppressed file-read
+  errors. That finding and its former hashes are historical; see
+  `reports/security-findings.md`. T-014 remains IN_REVIEW for the current
+  protected-file candidate, not for an unapplied scanner fix.
+- **Remediation applied (commit `8ddf603`, 2026-09-29):** both
+  `Select-String` scan sites in `scripts/ContractCheck.psm1` now use `-ErrorAction Stop`, and
+  `scripts/test-webauthnplugin-contract-guard.ps1` adds a negative fixture that holds a selected
+  source file open with `FileShare.None` and requires `Invoke-AeDaeSourceCheck` to throw. The
+  four current hashes and remaining review questions are recorded in
+  `reports/T-014-current-review-packet-2026-09-28.md` (updated 2026-11-18).
+  On 2026-11-18, `tests/contract-locked-propagation.ps1` proved that both
+  `verify-webauthnplugin-contract.ps1` and `build.ps1` exit 1 when a selected
+  source file is locked; the fixture was removed afterward. Independently
+  reviewing the exact protected diff remains open. On 2026-11-18, the human
+  code owner recorded approval in a PR #7 comment at `18b6074`; GitHub does
+  not allow the PR author to submit a formal Approve review on their own PR.
+  This sign-off does not close the remaining T-014 gates.
 
 ### T-012 – Final security review gate
 
@@ -627,8 +670,66 @@ material, Windows Hello invocation, plugin registration with Windows, credential
 mutation, or any `EXPERIMENTAL_`-prefixed API, until the protocol lane resumes and its tasks pass
 security review.
 
+**Narrow T-023 exception, owner-approved 2026-09-28:** A browser may invoke the
+standard WebAuthn registration/authentication APIs on the loopback-only experiment
+origin after an explicit user gesture. A pinned, reviewed RP library may parse and
+verify those browser responses for this experiment only. This exception does not
+authorize native/plugin Hello calls, private-key access or storage, plugin request
+decoding, plugin registration, credential metadata mutation in the product vault,
+production identities, signing code, or any experimental plugin API. No automated
+test may trigger a real Windows Hello prompt; virtual authenticators only. The
+security reviewer must approve T-023's implementation before it is marked DONE.
+
+**Narrow T-024 exception, owner-approved 2026-09-29:** An isolated, offline
+experiment may generate ephemeral synthetic signing keys and requests to test
+which fields are and are not authenticated by the sample-observed envelope.
+It may not import a platform key, call WebAuthn/plugin/Hello APIs, decode a
+WebAuthn request, use real credential material, register a plugin, change
+production code, or serve as a verifier implementation. T-019, T-015, and the
+binding prohibition above remain in force. Security review is required before
+T-024 is DONE or its conclusions are used in a design decision.
+
 Schema work, storage-engine work, key-protection work against random buffers, and UI work using
 synthetic non-credential records are **permitted** and do not constitute credential storage.
 
 Per ADR-001, a task instructing an agent to implement an `EXPERIMENTAL_` API is invalid. Refusing
 it is correct behavior under `AGENTS.md`.
+
+### T-023 – Isolated Windows Hello relying-party proof of concept
+
+- Status: DONE for the local experiment only — virtual-browser checks, security
+  review, dependency audit, and native baseline passed 2026-09-28. Real Windows
+  Hello validation and any production launch remain unverified and unauthorized.
+- Owner: CODER; SECURITY review recorded in `reports/security-findings.md`.
+- Scope: Independent, loopback-only RP demo using the browser's standard
+  WebAuthn API and a pinned verification library. Synthetic accounts and
+  public credential records stay in memory. No plugin, vault, public website,
+  release packaging, or protected ABI contract file changed.
+- Files: `experiments/hello-rp/` and focused tests, this task entry,
+  `reports/ADR-003-windows-hello-rp-track-proposal.md`, and the T-023 section
+  of `reports/security-findings.md`.
+- Evidence: `npm test` passed five groups including virtual registration,
+  authentication, UI buttons, and negative cases; `npm audit --omit=dev`
+  reported zero advisories; `scripts/build.ps1 -Configuration Debug` passed
+  contract guards, native build, and harness/unit tests. A manual Hello test
+  is optional, owner-initiated, and recorded separately.
+
+### T-024 – Isolated operation-signature boundary lab
+
+- Status: DONE for the isolated synthetic lab only — scoped review and tests
+  passed 2026-09-29; T-019/T-015 remain blocked and production use prohibited.
+- Owner: CODER; SECURITY review required.
+- Scope: `experiments/operation-signature-boundary/`, this task entry, and a
+  focused section in `reports/security-findings.md`. Use only Node built-in
+  cryptography and generated ephemeral keys; no SDK, Windows API, plugin,
+  credential, vault, network, or production code interaction.
+- Acceptance: tests with freshly generated keys prove that changing the signed bytes is
+  rejected while changing unsigned transaction/context fields is not detected
+  by signature verification alone. Document that this is a model of the
+  sample-observed input, not a platform exploit or contract. Identify what
+  additional broker guarantee or new signed envelope would be needed for
+  production, with G1/G2/G3 still unresolved.
+- Non-goal: implement T-015, a replay defense, cancellation authentication,
+  a platform verifier, or any launch-ready plugin behavior.
+- Evidence: `npm test` passes six cases; the native Debug build and contract
+  guards pass. Review disposition is recorded in `reports/security-findings.md`.

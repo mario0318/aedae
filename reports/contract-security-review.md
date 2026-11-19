@@ -3,6 +3,20 @@
 Reviewed: 2026-08-27  
 Status: IN REVIEW - protocol and registration implementation remain blocked
 
+## 2026-11-18 scope reconciliation
+
+This document records the 2026-08-27 review. The two HIGH findings below are
+assigned to T-015 (request signatures) and T-016 (transaction lifecycle), not
+to the narrow T-014 completion criteria. T-014 now covers the pinned contract
+integrity and bootstrap COM lifetime only; see `tasks.md`. Its current four
+protected-file hashes are in `T-014-current-review-packet-2026-09-28.md`.
+The source scanner's read-error fix and locked-file fixture landed in
+`8ddf603`. The code owner recorded approval on PR #7 at `18b6074`.
+`tests/contract-locked-propagation.ps1` proves the verifier and build wrapper
+exit 1 on a selected locked source file. An independent security review of the
+exact protected files remains open. None of this resumes
+T-015, T-016, T-019, provider registration, or real credential operations.
+
 ## Contract baseline
 
 - Reviewed SDK: `10.0.26100.0`.
@@ -56,4 +70,8 @@ Remediation implemented for the bootstrap, pending security review: module-level
 
 ## Disposition
 
-T-014 remains `IN_REVIEW` and blocks protocol and provider-registration work. The two HIGH findings are unaddressed: the request-signature gate and transaction lifecycle must be approved and implemented under T-015/T-016. The bootstrap contract and COM-lifetime remediations require security-review approval; they do not close T-014 or authorize T-004, `MakeCredential`, or `GetAssertion`.
+T-014 remains `IN_REVIEW` pending the narrow gates above. The request-signature
+and transaction-lifecycle findings remain open under T-015/T-016 and continue
+to block protocol and provider-registration work. The bootstrap contract and
+COM-lifetime remediations do not authorize T-004, `MakeCredential`, or
+`GetAssertion`.
