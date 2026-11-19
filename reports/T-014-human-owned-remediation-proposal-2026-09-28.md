@@ -1,12 +1,15 @@
 # T-014 protected-path remediation proposal for the human code owner
 
 Date: 2026-09-28  
-Status: historical proposal; the current candidate remains unapproved.
+Status: historical proposal; code-owner sign-off is recorded, while the
+current candidate remains in review.
 Update (2026-11-18): commit `8ddf603` applied `-ErrorAction Stop` at both scan
 sites and added the locked-file negative fixture. The guard test passes. The
-current hashes are in `T-014-current-review-packet-2026-09-28.md`. Propagation
-through the verifier and build wrapper, independent review, and code-owner
-approval remain open.
+current hashes are in `T-014-current-review-packet-2026-09-28.md`.
+`tests/contract-locked-propagation.ps1` now proves that both the verifier and
+build wrapper exit 1 on a selected locked file. Independent security review
+remains open. The code owner recorded approval on PR #7 on 2026-11-18; GitHub rejects
+a formal Approve review from the PR author.
 
 ## Required fail-closed correction
 
@@ -17,7 +20,7 @@ and diagnostics. The earlier suppressed read error was confirmed with a
 missing-file probe; it is not a finding against the current candidate.
 
 The locked-file negative fixture now in `scripts/test-webauthnplugin-contract-guard.ps1`
-implements steps 1 to 3 below; step 4 remains open:
+implements steps 1 to 3 below; the new propagation test covers step 4:
 
 1. Create a disposable source fixture under a disposable test root.
 2. Hold the selected file open with `FileShare.None` while calling the same

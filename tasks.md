@@ -622,16 +622,17 @@ bytes. It neither relaxes T-019/T-015 nor supplies a production signing contract
 
 ### T-014 – Security review of the WebAuthn Plugin contract
 
-- Status: IN_REVIEW — historical narrow review only; current protected-script diff is not yet
-  approved. T-017 is closed.
+- Status: IN_REVIEW — code-owner sign-off for the current protected-script diff is
+  recorded on PR #7; independent security review remains open. T-017 is closed.
 - Approved scope: compiler-bound SDK/header contract integrity plus bootstrap COM lifetime.
 - Explicitly **not** covered: signature-envelope semantics, request authentication, transaction
   state machines, cancellation races, registration, credential handling, signing, Hello, or v2.
 - Note: the two HIGH findings belong to T-015 and T-016. Their open status is not a reason to hold
   T-014 open; the original completion criteria were circular and have been narrowed accordingly.
-  T-017's governance/rejection requirement is now satisfied. Before T-014 can be approved, freeze
-  and independently review the exact current protected-script diff and reconcile the stale formal
-  report. Then obtain human approval for the limited contract-integrity/bootstrap-lifetime scope.
+  T-017's governance/rejection requirement is now satisfied. The current
+  protected hashes are frozen and code-owner sign-off is recorded. Before
+  T-014 can be DONE, independently review that exact diff and reconcile the
+  formal report for the limited contract-integrity/bootstrap-lifetime scope.
 - **Frozen review input (2026-09-11):** `reports/T-014-protected-diff-review-packet.md` records the
   exact SHA-256 of all four protected files, the 30-insertion/two-deletion diff, local Debug/Release
   evidence, hosted-CI evidence boundary and five required adversarial review questions. It is a
@@ -641,15 +642,19 @@ bytes. It neither relaxes T-019/T-015 nor supplies a production signing contract
   errors. That finding and its former hashes are historical; see
   `reports/security-findings.md`. T-014 remains IN_REVIEW for the current
   protected-file candidate, not for an unapplied scanner fix.
-- **Remediation applied, not yet reviewed or approved (commit `8ddf603`, 2026-09-29):** both
+- **Remediation applied (commit `8ddf603`, 2026-09-29):** both
   `Select-String` scan sites in `scripts/ContractCheck.psm1` now use `-ErrorAction Stop`, and
   `scripts/test-webauthnplugin-contract-guard.ps1` adds a negative fixture that holds a selected
   source file open with `FileShare.None` and requires `Invoke-AeDaeSourceCheck` to throw. The
   four current hashes and remaining review questions are recorded in
   `reports/T-014-current-review-packet-2026-09-28.md` (updated 2026-11-18).
-  Still open: prove `verify-webauthnplugin-contract.ps1`
-  and `build.ps1` exit nonzero on the locked fixture (the new test calls the function
-  directly), an independent review of the new diff, and human code-owner approval of the PR.
+  On 2026-11-18, `tests/contract-locked-propagation.ps1` proved that both
+  `verify-webauthnplugin-contract.ps1` and `build.ps1` exit 1 when a selected
+  source file is locked; the fixture was removed afterward. Independently
+  reviewing the exact protected diff remains open. On 2026-11-18, the human
+  code owner recorded approval in a PR #7 comment at `18b6074`; GitHub does
+  not allow the PR author to submit a formal Approve review on their own PR.
+  This sign-off does not close the remaining T-014 gates.
 
 ### T-012 – Final security review gate
 

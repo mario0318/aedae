@@ -1,7 +1,7 @@
 # T-014 protected contract review packet
 
 Original packet: 2026-09-28. Refreshed: 2026-11-18.
-Status: **current candidate pending independent review and human code-owner approval**.
+Status: **code-owner sign-off recorded; independent security review pending**.
 The 2026-09-28 `APPROVE_WITH_REQUIRED_CHANGES` finding applies only to the
 former candidate and its pre-remediation hashes; see the file history and
 `reports/security-findings.md` for that review.
@@ -38,13 +38,18 @@ to throw. The pinned SDK, header, IID and method-order checks remain in scope.
 ## Evidence and remaining gate
 
 On 2026-11-18, the contract guard negative tests and the normal contract
-verifier passed locally against SDK 10.0.26100.0. This proves the direct
-locked-file fixture and the clean verifier path. It does **not** prove that
-the verifier and `scripts/build.ps1` exit nonzero when a selected file is
-locked during their own scans. That propagation test, an independent review
-of these exact hashes, and human code-owner approval remain open. Earlier
-Debug/Release build results and hosted CI findings refer to older candidates;
-rerun the relevant build gates for this candidate before approval.
+verifier passed locally against SDK 10.0.26100.0. The added
+`tests/contract-locked-propagation.ps1` then held a selected source file open
+with `FileShare.None` and proved both the verifier and `scripts/build.ps1`
+exit 1 on that read failure; it removed the fixture afterward. An independent
+security review of these exact hashes remains open. The code owner recorded
+approval for PR #7
+at `18b6074` in its discussion on 2026-11-18; GitHub rejects a formal Approve
+review from the PR author. The COM, VaultStore, ManagementModel, and
+KeyProtection suites pass locally. A full Debug solution build reached WinUI
+projection but this machine's `cppwinrt.exe` could not find the installed SDK
+path in the registry; no registry setting was changed. Earlier hosted CI and
+Release build results refer to older candidates.
 
 The reviewer should also assess enumeration and read failures, literal-token
 coverage for ADR-001, whether the SQLite tokens and selected artifact types
@@ -52,6 +57,7 @@ cover ADR-002, production/negative-guard parity, and any regression in the
 SDK/header/IID/method-order checks. Return a disposition of `APPROVE`,
 `APPROVE_WITH_REQUIRED_CHANGES`, or `BLOCKED` for these exact hashes.
 
-No agent may edit the four protected paths. This packet concerns the narrow
+No agent may edit the four protected paths. The owner's sign-off is not a
+security review or a waiver of the remaining gate. This packet concerns the narrow
 contract-integrity/bootstrap-lifetime T-014 scope; it does not approve
 T-015/T-016/T-019 protocol work, plugin registration, or real credentials.

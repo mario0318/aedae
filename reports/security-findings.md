@@ -91,9 +91,12 @@ similar.
 Remediation status (checked 2026-11-18): commit `8ddf603` applies the code
 change and locked-file negative fixture; the guard test passes. The read-error
 finding is remedied in code, while the current protected candidate remains
-unapproved. Its hashes are frozen in the updated packet. Propagation through
-the verifier and build wrapper has not been tested against a locked fixture,
-and independent review and human code-owner approval remain outstanding.
+in review. Its hashes are frozen in the updated packet. The new
+`tests/contract-locked-propagation.ps1` proves nonzero exits from the verifier
+and build wrapper on a locked selected source file. Independent security review
+remains outstanding. The code owner recorded
+approval for PR #7 at `18b6074` on 2026-11-18; GitHub rejects a formal
+Approve review from the PR author.
 
 ### Other review observations
 
