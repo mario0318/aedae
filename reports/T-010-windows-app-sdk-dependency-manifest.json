@@ -1,0 +1,156 @@
+{
+  "schemaVersion": 1,
+  "reviewDate": "2026-09-13",
+  "source": "https://api.nuget.org/v3/index.json",
+  "fullLockSha256": "B2FF9989E80BFEAD9220ED9388060E09A5E41924BE8DB94855E7BF8D3EA27A6A",
+  "recommendedLockSha256": "82C45DE659CDF37F7164170B426DF75BBF952B93F77CBF592098EC117824724D",
+  "authorCertificateSha256": "566A31882BE208BE4422F7CFD66ED09F5D4524A5994F50CCC8B05EC0528C1353",
+  "repositoryCertificateSha256": "1F4B311D9ACC115C8DC8018B5A49E00FCE6DA8E2855F9F014CA6F34570BC482D",
+  "recommendedPackages": [
+    "Microsoft.Web.WebView2",
+    "Microsoft.Windows.SDK.BuildTools",
+    "Microsoft.Windows.SDK.BuildTools.MSIX",
+    "Microsoft.WindowsAppSDK.Base",
+    "Microsoft.WindowsAppSDK.Foundation",
+    "Microsoft.WindowsAppSDK.InteractiveExperiences",
+    "Microsoft.WindowsAppSDK.Runtime",
+    "Microsoft.WindowsAppSDK.WinUI"
+  ],
+  "packages": [
+    {
+      "id": "Microsoft.Web.WebView2",
+      "version": "1.0.3719.77",
+      "nupkgBytes": 8971244,
+      "extractedBytes": 55186449,
+      "archiveSha256": "2F6BE3A10A1A8D6D1FDE986AF4131DAB344F8181FFFE75590824E0F4B037ED73",
+      "archiveSha512": "Cpq7EGgijiCN0lg1RlTZuZcRkzyo/USU9cEJMSPh6FG4PLjmTEpJ5NKuJqQ06ONnVVARCcTLf31IjjhFJUrApw==",
+      "lockContentHash": "t+ucyKw5NTwMjsUrDF6R9Lk40lpcKQD1/HgyGFxl49tdA4h9dKlsj6FYGEmDRpFNfnTpENuTypMcdbrlkqBdDA=="
+    },
+    {
+      "id": "Microsoft.Windows.AI.MachineLearning",
+      "version": "2.1.74",
+      "nupkgBytes": 50314157,
+      "extractedBytes": 174455847,
+      "archiveSha256": "691165FA3C07A04B752CBF4A07E93ED13A418E9DEA1EE89EB163D2225E2BA3AF",
+      "archiveSha512": "yg+FU/BOrHsYYXlsVLpHdMmkHROvlImFR3k75Ja3Brn/GHVum7ncmsp3AK19stMZih7FdWycucACL22fOxD7YQ==",
+      "lockContentHash": "/Z1yAQ0J53eD1RrOl5anTDS0UQOgneERY//hLljwGcWeUX9ynCvOl5qUxAsfWvwsZZGcvV4WKjAvnAtA6N5i+w=="
+    },
+    {
+      "id": "Microsoft.Windows.SDK.BuildTools",
+      "version": "10.0.26100.4654",
+      "nupkgBytes": 22466142,
+      "extractedBytes": 79349313,
+      "archiveSha256": "5F5783658A200F83EA2ADDFD406E2303A901B27AD7C49B0347C34AEFCC21883D",
+      "archiveSha512": "kXdAbJ9Vu1gFheVpgqdxFqbamlponIVeVEnnkIzuvLkcaGrQOoJwaZSRcrhwICgc1UZCoPUE4FWZKxHWTW4s3Q==",
+      "lockContentHash": "2mgcOlj/t2RfSyyw+pVESfO+Tk1RkfQzto9Vrq42M1lUQIfQEwbi8QLha9GXWIOj+TFzeHIEJckIoF25mgiM8A=="
+    },
+    {
+      "id": "Microsoft.Windows.SDK.BuildTools.MSIX",
+      "version": "1.7.251221100",
+      "nupkgBytes": 3213649,
+      "extractedBytes": 12513322,
+      "archiveSha256": "E61C560805029F5AE15433BE52E153F3862B6FAAF725292638A9ECE592F7A060",
+      "archiveSha512": "3OEJjmDvPQH649p73taTt2n4AeY9dMg/gaDdZHQZh4xOOTAjdfuzuuw2FxSedpQuP9Pbki7FNGoE1mM4kjf0Mw==",
+      "lockContentHash": "f4aIZJ0NUth2403oxrpR+9rxVzZVI6dabqB21u8ncnk8eJAKCs9m77E4iYAnvP1YwrRe4axz3f8+yUcttNSfEA=="
+    },
+    {
+      "id": "Microsoft.WindowsAppSDK",
+      "version": "2.4.0",
+      "nupkgBytes": 72204,
+      "extractedBytes": 462875,
+      "archiveSha256": "6EC2EBB6ADD33ECEBAC1F5773AD4CABE934B82FB18D7BEA98E011BB0FC0A37B9",
+      "archiveSha512": "e11NLN3SDsCNZc0uUA6obpmZZ6+Zywh7hIfmWQ18KOUHzrWK96v9TXKsNfWKAPPZ9kmV4BU9S09oAhE8NELjhw==",
+      "lockContentHash": "sdS48CFL5EqzFB5a63Rr6qdK5l8NqmxWKJ/DXwsF8waCDLXdD8SjSnIOfpxzq4f4aUhaeXEAwVRA9rD8QvM+2g=="
+    },
+    {
+      "id": "Microsoft.WindowsAppSDK.AI",
+      "version": "2.4.4",
+      "nupkgBytes": 6978190,
+      "extractedBytes": 25056472,
+      "archiveSha256": "53ED1BA75C0D87B3D7AEF11A97DF50C710F484B99E4CAD9DCE49877D061CA6B7",
+      "archiveSha512": "BIm58NJHNMCBhTwnp5kiplhrRGCP8eIa8h8+8MO2m4Cye5VQvR58OFGa2YMgA15kpe5byORc61Y31CTERNjetA==",
+      "lockContentHash": "nwgZKIWa97bxP3UYahv9LK1WAftzsEu3x/Ws9hCs5QG9mOf25ODrhv7BOGfYvptEhrh+XhoqCa8etSVQRr8cmw=="
+    },
+    {
+      "id": "Microsoft.WindowsAppSDK.Base",
+      "version": "2.0.4",
+      "nupkgBytes": 90877,
+      "extractedBytes": 549089,
+      "archiveSha256": "E3E13478C4C80C59ED5F8F89542FE49A2985DAA484753E93A5858E90C2D46A4D",
+      "archiveSha512": "Mjy6K7l9kj1+5UNPg8y/fkHx2be0TdLYaIWJsf7SlkZHEcFd6bl5L8uSjPNYK0Xz5vfaYELO5yKszHHIbaO75A==",
+      "lockContentHash": "QXSy2llX2/Bx9dYWGUEsb10F40q94ZiDnPMzqa2/qRmTG4y9EXxGp6uHITb7c0b4FCa+6KFBlgh6D53M0QEMEg=="
+    },
+    {
+      "id": "Microsoft.WindowsAppSDK.DWrite",
+      "version": "2.1.0",
+      "nupkgBytes": 5296114,
+      "extractedBytes": 18436828,
+      "archiveSha256": "91746ABD6A780B84001F9C465507830D5A24C79912BC4AA0D35938C71C1C6B5F",
+      "archiveSha512": "lm1mJMhQA6HV702Oom3Yjm7e5A0ZUfU6Ji0JFDhgYSUP71AlBe3hQMMNYc1oCuqOd/b7UdHl6aJwXGzkP+20Hw==",
+      "lockContentHash": "dgix7NSeo7Z8SZPyrsOqYm/6OUvBveHCiVyorYecmtDYoZW26dJ6/i9yveIxgWvmFpgfKXPeIuQBCvhbetHiYg=="
+    },
+    {
+      "id": "Microsoft.WindowsAppSDK.Foundation",
+      "version": "2.3.9",
+      "nupkgBytes": 6416865,
+      "extractedBytes": 23582008,
+      "archiveSha256": "230BC605A3FC9ED689B2117056C5274923BF58B453FA44EDDE18A168BBF628BE",
+      "archiveSha512": "UNTkdxpT8g6eTuWDHumM+AdGZ4EdFCR03o4OLamBkbKVKDmVO04C/lLHp0Zk+wAj4i6caMU5L7SoQ2eiHN9MYA==",
+      "lockContentHash": "lnfSoKvuMN2nv/NyMDWHX5u2K/tdg8AiyW+z30/YmCbJZp1k38B8/d4pKf+RjgkQbSGbIikN4irae72FXA3X5Q=="
+    },
+    {
+      "id": "Microsoft.WindowsAppSDK.InteractiveExperiences",
+      "version": "2.1.6",
+      "nupkgBytes": 27892449,
+      "extractedBytes": 108885278,
+      "archiveSha256": "DE7B5907C63C8A79606CCC8F0D98943B154A2E62312308187E8CDC3304FF3D0B",
+      "archiveSha512": "F11b1MpDz2XQW2kCiwRcwzElYtaPqNKzTFIsnMKYcQyne9aurGaFtJjdeAVmhDKrCYxcPYXefAfde80+enDKkw==",
+      "lockContentHash": "j7pyWfsXPQFTEWX22GgC6/JDzliBpwKESJzglCOv8wRJI7SmXiPdYqQnBI2gSKC1slJIpkczVdmmpvHmxPxyOw=="
+    },
+    {
+      "id": "Microsoft.WindowsAppSDK.ML",
+      "version": "2.1.74",
+      "nupkgBytes": 102737,
+      "extractedBytes": 529820,
+      "archiveSha256": "4A5150B09300FB52B2DB94927B4C791D887B82A329D53D81A7FCA147B37B9D15",
+      "archiveSha512": "ra1h2QVFKLt3KPdxyHsbOUFOEJN83iRS0pqFNsmok4Q46Md451EXHdpAJOIUrFGQwtCqzg/vuBN/TI0wG584iw==",
+      "lockContentHash": "9Vd1ikH+n6pbqhgmCn+zNulJ6gIp9Hz9bC++ka1Uphh2gule6HiT6Jr25N/fQoEc4I9xOTKkn3DtlcpHlcocaw=="
+    },
+    {
+      "id": "Microsoft.WindowsAppSDK.Runtime",
+      "version": "2.4.0",
+      "nupkgBytes": 164053946,
+      "extractedBytes": 329142755,
+      "archiveSha256": "93F48B096416AB7B908EA30690BBA47DE8264CD2F22DD7B0AD97187A86D00120",
+      "archiveSha512": "esr1+QzXU0mA0yCUO8rnQ7ok4dUpTFiFTaRbZgDic/UMFrhrNd09CBiUYaO/M0z7FDon7wqa1CFoMBsPn9QHJQ==",
+      "lockContentHash": "ioljT2/zivSWb6Hc375VPrRrauE5O49OccruHQFI23NdwGERCFBgCr1qCYhFciTxAX9hOMkJeAx0/Wo6Z5y6eg=="
+    },
+    {
+      "id": "Microsoft.WindowsAppSDK.Search",
+      "version": "2.4.4",
+      "nupkgBytes": 4777703,
+      "extractedBytes": 15432711,
+      "archiveSha256": "9120AA80D14A6EFB61940F87FC8DC7D11B4D80383A4421535A8FD96D6B446B98",
+      "archiveSha512": "HheZM5LPnTykiZqpJEiRusuyH/DhChCC2AtDGhr5RmGTNthHT8P4EqOhRVGqdV48jmLHY9FyMIJCyk4rzkAbGw==",
+      "lockContentHash": "3IXnSBTBBQpqp3B+0R5FUEzcAHFwq4DVEDukVdqk3nP+X4LA10yPLO/uQgDaxtDxwhMJcEXX3vrKFdQTWSAOwg=="
+    },
+    {
+      "id": "Microsoft.WindowsAppSDK.Widgets",
+      "version": "2.0.5",
+      "nupkgBytes": 2758616,
+      "extractedBytes": 13006027,
+      "archiveSha256": "7F1B585EF8F012784D2CB91B86E809814CECCAB74183A5979EF45DB141779CB5",
+      "archiveSha512": "uqMIWloLBnsdSKsCP2K523jO+FhGeIcH54BBsJg/TSKHvdQ/w8RQDi5ZRGVBjh7ovrw8bjSJdfEBA0u1+nC6dw==",
+      "lockContentHash": "lRz+8+QU65gV8hRzLVE+GRsPKZ42lnzqkmsw96HzQd/DuFYfr4JYpUU7ZZ5YrkV2EfQe4BCmoRKAeZ3WwalMcg=="
+    },
+    {
+      "id": "Microsoft.WindowsAppSDK.WinUI",
+      "version": "2.3.6",
+      "nupkgBytes": 61600431,
+      "extractedBytes": 244446008,
+      "archiveSha256": "3404F14B5AAD656024CF23EFAB49373E14BE4129B1E7D8CDD18DD26712D3C8E2",
+      "archiveSha512": "E1S4NobPvZJq9xTo77a7jYmvJPEIfJzC3m+abRlaYXtFSlKWTRtCt/SRo+oEvKv63CEriAh6zw44OSAO9oiLsQ==",
+      "lockContentHash": "01ImKF+wYm2aehRWS2GpKeoBL1RutDcJOUSTSo3fkLjOSr+gKPcUGDAtIUwZcQTvHWOct6hT1jKIdyxbJIhpBA=="
+    }
+  ]
+}

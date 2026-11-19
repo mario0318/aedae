@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64"><Configuration>Debug</Configuration><Platform>x64</Platform></ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64"><Configuration>Release</Configuration><Platform>x64</Platform></ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{7E2296D6-218E-40F9-845C-A407506147A5}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>AeDaeManagement</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.26100.0</WindowsTargetPlatformVersion>
+    <TargetFrameworkIdentifier>native</TargetFrameworkIdentifier>
+    <TargetFrameworkVersion>v0.0</TargetFrameworkVersion>
+    <NuGetTargetMoniker>native,Version=v0.0</NuGetTargetMoniker>
+    <BaseIntermediateOutputPath>$(MSBuildProjectDirectory)\..\obj\AeDaeManagementApp\</BaseIntermediateOutputPath>
+    <MSBuildProjectExtensionsPath>$(BaseIntermediateOutputPath)</MSBuildProjectExtensionsPath>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <PropertyGroup>
+    <RepoRoot>$([MSBuild]::NormalizePath('$(MSBuildProjectDirectory)\..'))</RepoRoot>
+    <OutDir>$(RepoRoot)\artifacts\$(Configuration)\</OutDir>
+    <IntDir>$(RepoRoot)\obj\AeDaeManagementApp\$(Configuration)\</IntDir>
+    <TargetName>aeDaeManagement</TargetName>
+    <AppxPackage>false</AppxPackage>
+    <WindowsPackageType>None</WindowsPackageType>
+    <WindowsAppSDKSelfContained>false</WindowsAppSDKSelfContained>
+    <WindowsAppSDKFrameworkPackageReference>true</WindowsAppSDKFrameworkPackageReference>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <RestoreLockedMode>true</RestoreLockedMode>
+    <NuGetLockFilePath>$(MSBuildProjectDirectory)\AeDaeManagementApp.packages.lock.json</NuGetLockFilePath>
+    <RestorePackagesPath>$(RepoRoot)\artifacts\nuget\packages</RestorePackagesPath>
+    <GeneratedProjectionDir>$(IntDir)GeneratedProjection</GeneratedProjectionDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <WarningLevel>Level4</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <PreprocessorDefinitions>UNICODE;_UNICODE;WIN32_LEAN_AND_MEAN;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(GeneratedProjectionDir);$(WindowsSdkDir)Include\$(WindowsTargetPlatformVersion)\cppwinrt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link><SubSystem>Windows</SubSystem><AdditionalDependencies>runtimeobject.lib;%(AdditionalDependencies)</AdditionalDependencies></Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
+    <ClCompile><PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions></ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
+    <ClCompile><PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions></ClCompile>
+    <Link><EnableCOMDATFolding>true</EnableCOMDATFolding><OptimizeReferences>true</OptimizeReferences></Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.WindowsAppSDK.WinUI" Version="[2.3.6]" />
+    <PackageReference Include="Microsoft.WindowsAppSDK.InteractiveExperiences" Version="[2.1.6]" />
+    <PackageReference Include="Microsoft.WindowsAppSDK.Runtime" Version="[2.4.0]" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\App.UI\ManagementApp.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\src\App.UI\IdentityHealthModel.h" />
+    <ClInclude Include="..\src\App.UI\MockThisPcService.h" />
+  </ItemGroup>
+  <Target Name="GenerateWinUIProjection" BeforeTargets="ClCompile">
+    <PropertyGroup>
+      <CppWinRTExe>$(WindowsSdkDir)bin\$(WindowsTargetPlatformVersion)\x64\cppwinrt.exe</CppWinRTExe>
+      <FoundationMetadata>$(RestorePackagesPath)\microsoft.windowsappsdk.foundation\2.3.9\metadata</FoundationMetadata>
+      <InteractiveMetadata>$(RestorePackagesPath)\microsoft.windowsappsdk.interactiveexperiences\2.1.6\metadata\10.0.18362.0</InteractiveMetadata>
+      <WinUIMetadata>$(RestorePackagesPath)\microsoft.windowsappsdk.winui\2.3.6\metadata</WinUIMetadata>
+      <WebViewMetadata>$(RestorePackagesPath)\microsoft.web.webview2\1.0.3719.77\lib\Microsoft.Web.WebView2.Core.winmd</WebViewMetadata>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(CppWinRTExe)')" Text="Pinned Windows SDK cppwinrt.exe is required at $(CppWinRTExe)." />
+    <Error Condition="!Exists('$(WebViewMetadata)')" Text="Locked WebView2 metadata is missing; restore build\AeDaeManagementApp.packages.lock.json before building." />
+    <MakeDir Directories="$(GeneratedProjectionDir)" />
+    <Exec Command="&quot;$(CppWinRTExe)&quot; -input &quot;$(FoundationMetadata)&quot; -input &quot;$(InteractiveMetadata)&quot; -input &quot;$(WinUIMetadata)&quot; -input &quot;$(WebViewMetadata)&quot; -reference $(WindowsTargetPlatformVersion) -output &quot;$(GeneratedProjectionDir)&quot; -overwrite" />
+  </Target>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+</Project>

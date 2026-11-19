@@ -1,0 +1,70 @@
+TASK: Re-review the final T-013 deterministic unsigned MSIX packaging changes after first-pass findings. Review only; do not edit or run tools.
+MODE: second-pass
+FILES_TOUCHED:
+  - scripts/package.ps1
+  - reports/T-013-packaging-review.md
+  - tasks.md (T-013 entry only)
+ORIGINAL_FINDINGS:
+  1. MEDIUM: WriteAllBytes directly to the package could corrupt the only package on partial failure.
+  2. MEDIUM: EOCD backward scan did not verify comment length reaches the exact file end.
+  3. LOW: alleged ZIP64 extra-field ordering assumption.
+  4. LOW/INFO: DOS date encoding confirmation, not a defect.
+  5. INFO: possible arithmetic overflow for future packages larger than current bounds.
+APPLIED_FIXES:
+  - EOCD candidate is accepted only when index + 22 + commentLength equals bytes.Length.
+  - normalized bytes are written to a same-directory .normalizing file, exact length is checked,
+    and File.Replace atomically exchanges it with the MakeAppx output while preserving a
+    .pre-normalization recovery backup. The backup is deleted only after replacement succeeds;
+    the temp is cleaned in finally.
+  - adversarial fake-EOCD-in-comment probe passes.
+  - forced .normalizing path collision makes the write fail and the original package hash remains unchanged.
+REJECTED_FINDINGS:
+  - ZIP64 ordering: the code advances over uncompressed and compressed fields only when each
+    corresponding fixed central-directory field equals UInt32.MaxValue. If only local offset is
+    sentinel, it advances zero bytes and reads the first ZIP64 value as the local offset. This is
+    the conditional field order required by the ZIP64 extended-information layout.
+  - DOS date: first pass confirmed 0x2821 plus zero time is correct.
+  - overflow info: ZIP64 values are checked as UInt64 against Int32.MaxValue and centralStart64 +
+    centralSize64 must exactly equal the already bounded ZIP64 record offset before conversion.
+    Current package is 18,509 bytes. No unbounded archive is accepted for mutation.
+FINAL_DIFF:
+EOCD scan:
+    for ($index = $bytes.Length - 22; $index -ge $searchFloor; --$index) {
+        if ([BitConverter]::ToUInt32($bytes, $index) -eq 0x06054b50 -and
+            $index + 22 + [BitConverter]::ToUInt16($bytes, $index + 20) -eq $bytes.Length) {
+            $eocd = $index
+            break
+        }
+    }
+
+Atomic finalization:
+    $normalizedPath = "$Path.normalizing"
+    $backupPath = "$Path.pre-normalization"
+    try {
+        if ([IO.File]::Exists($normalizedPath)) { [IO.File]::Delete($normalizedPath) }
+        if ([IO.File]::Exists($backupPath)) { [IO.File]::Delete($backupPath) }
+        [IO.File]::WriteAllBytes($normalizedPath, $bytes)
+        if (([IO.FileInfo]::new($normalizedPath)).Length -ne $bytes.Length) {
+            throw 'Normalized package length does not match the source package.'
+        }
+        [IO.File]::Replace($normalizedPath, $Path, $backupPath)
+        [IO.File]::Delete($backupPath)
+    }
+    finally {
+        if ([IO.File]::Exists($normalizedPath)) { [IO.File]::Delete($normalizedPath) }
+    }
+
+TESTS:
+  - two new post-fix full Release/package runs: exit 0; all build-wrapper suites passed
+  - packages A and B remain byte-identical at SHA-256 192871d6839a243343ab1e56e70c52d0dc94e2901f16603b03dcf0006d318fb6
+  - MakeAppx 10.0.26100.7705 independently unpacked both post-fix exact packages
+  - no .normalizing or .pre-normalization leftovers
+  - fake EOCD signature in a valid 30-byte comment is ignored and normalization succeeds
+  - forced temp-write collision fails while original package hash remains unchanged
+  - invalid version and outside OutputPath still exit 1 before build/write
+  - PowerShell parse and scoped git diff --check pass
+CONSTRAINTS:
+  - unsigned developer bootstrap only
+  - no signing, installation, publishing, certificate/trust changes, credentials, Hello, registration, or protocol work
+  - return a JSON array using the shared severity schema, then a 3-5 sentence summary
+  - focus on whether the two accepted fixes close the original medium findings and whether any critical/high issue remains

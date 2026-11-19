@@ -1,0 +1,5 @@
+```json
+[]
+```
+
+Both medium findings from the first pass are closed. The EOCD scan now confirms that index + 22 + commentLength equals the file length, which rejects any trailing bytes or a fake signature embedded in a ZIP comment. The atomic write path writes to a temporary `.normalizing` file, verifies its length, then uses `File.Replace` to swap it in while preserving a recovery backup; the backup is deleted only after success, and the temp is cleaned in `finally`, so a partial write cannot corrupt the only copy. The ZIP64 conditional-field-order logic, DOS date encoding, and overflow guards were re-examined and remain correct as described in the rejection rationale. Test coverage—including the adversarial fake-EOCD probe and forced temp-collision scenario—demonstrates the fixes behave as intended. No critical, high, or new medium issues remain.

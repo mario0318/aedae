@@ -1,10 +1,13 @@
 # Experimental WebAuthn v2 evaluation
 
-Status: planning only. No implementation, registration, Windows Hello call, credential operation, or production use is authorized.
+Status: **SUPERSEDED by ADR-001.** Historical planning analysis only. It is not a task and does
+not authorize a prototype, implementation, registration, Windows Hello call, credential operation,
+or production use.
 
 ## Purpose
 
-Evaluate whether the explicitly experimental v2 plugin APIs could support a non-production prototype with a documented caller-buffer signing envelope. This work does not unblock stable v1 and does not change T-015.
+Record the evidence that a future, separately authorized non-production research proposal would
+need to consider. This report does not unblock stable v1, change T-015, or authorize evaluation.
 
 ## Required evidence before any prototype
 

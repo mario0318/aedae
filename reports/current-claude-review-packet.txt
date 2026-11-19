@@ -1,0 +1,33 @@
+TASK: Have Claude review what still needs review in the aeDae project. If the review is clean, the human owner grants approval for the exact clean scope. Also identify whether any current Microsoft software or SDK updates remove the protocol pause.
+MODE: first-pass
+FILES_TOUCHED:
+  - web/src/site.mjs
+  - web/src/styles.css
+  - web/build.mjs
+  - web/test.mjs
+  - web/deploy/prepare.ps1
+  - scripts/ContractCheck.psm1
+  - scripts/verify-webauthnplugin-contract.ps1
+  - scripts/test-webauthnplugin-contract-guard.ps1
+  - scripts/build.ps1
+  - scripts/package.ps1
+  - .github/
+  - tasks.md
+DIFF:
+The current worktree is intentionally multi-scope and must not be approved wholesale. Review the outstanding approval units:
+
+1. T-020 website: reconstructed web-only candidate. Local evidence says 45 focused assertions pass, the build emits 15 pages across 5 surfaces, structured claim validation rejects adjacent-source false positives, all routes have one h1, contrast and 44px navigation gates pass, and responsive Playwright checks at 1440/1024/390 pass for tech/world/online with no horizontal overflow or console errors. It uses approved spec 02 and excludes deployment files. Remaining gate is repeat independent UX/general review and human PR approval.
+
+2. T-014/T-018 contract scripts and CI: protected contract scripts have an uncommitted diff. Local Debug/Release contract gates pass, but hosted CI fails closed because GitHub windows-2025 exposes a different webauthnplugin.h hash than the reviewed manifest. Do not repin or weaken the manifest. Review whether the current diagnostics, failure handling, experimental-API scan, CI matrix, and protected-file changes are safe and complete. This scope cannot be merged without human code-owner approval.
+
+3. T-013 packaging: current evidence reports two deterministic Release packages, MakeAppx 10.0.26100.7705 unpack success, matching package hash 192871d6839a243343ab1e56e70c52d0dc94e2901f16603b03dcf0006d318fb6, matching payload hashes, manifest and PE hardening checks, absent signature, and negative tests. Claude previously found and the project repaired two medium defects; a second pass reportedly returned no findings. Treat this as corroboration only and identify any remaining issue visible from the stated evidence. Scope is unsigned developer bootstrap only.
+
+4. T-010/T-011 UI: independent rereview returned APPROVE and human acceptance is recorded. Remaining limitation is no direct hands-on dark/high-contrast, 200% scale, keyboard/focus, UIA, or screen-reader inspection. Do not expand approval to live data, Hello, vault, credentials, registration, signing, or publishing.
+
+5. Baseline/documentation: T-001/T-002/T-003 remain in review because of the missing spec/ directory conflict, incomplete sample-mapping review history, and unresolved IUnknown-only versus official IPluginAuthenticator bootstrap scope. T-019 is research-complete but awaits Microsoft's authoritative answer on signed bytes, serialization, algorithm/key format, transaction binding/replay freshness, and cancellation authentication. T-015 and downstream protocol tasks remain paused.
+
+TESTS:
+Fresh local verification: node web/test.mjs => 45 assertions passed; node web/build.mjs => Built 15 pages across 5 surfaces; powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build.ps1 => exit 0, Debug build succeeded with 0 warnings/errors, contract negative guards passed, COM activation passed, vault adversarial/crash/substitution tests passed, ManagementModelTests passed, KeyProtectionTests passed.
+
+CONSTRAINTS:
+Security-sensitive project. No real credentials, signing, Windows Hello invocation, plugin registration, protocol request decoding, experimental APIs, production publishing, DNS changes, or credential-store access are authorized. Review-only: Claude must not edit files or run commands. Approval, if appropriate, must be stated per scope and must not override the Microsoft contract dependency or human code-owner gates. The untracked external/sqlite-amalgamation-3530400 directory is not an approved dependency.

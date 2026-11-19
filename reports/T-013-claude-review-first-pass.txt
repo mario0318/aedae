@@ -1,0 +1,41 @@
+```json
+[
+  {
+    "severity": "medium",
+    "file": "scripts/package.ps1",
+    "lines": "107-230",
+    "finding": "Partial-write failure leaves corrupted package on disk",
+    "detail": "Normalize-AppxTimestamps modifies bytes in memory then writes the entire buffer with [IO.File]::WriteAllBytes. If the write fails mid-stream (disk full, permissions revoked), the original package is truncated or corrupted with no recovery path. Consider writing to a temp file and renaming atomically, or validating the written file's length matches the buffer."
+  },
+  {
+    "severity": "medium",
+    "file": "scripts/package.ps1",
+    "lines": "113-119",
+    "finding": "EOCD signature false-positive not guarded against",
+    "detail": "The backward scan for 0x06054b50 can match a comment that happens to contain those four bytes. The code does not verify that the comment-length field at eocd+20 places the record at the expected file end. A crafted or unlucky archive could cause misparse. Recommend checking that eocd + 22 + commentLength == bytes.Length."
+  },
+  {
+    "severity": "low",
+    "file": "scripts/package.ps1",
+    "lines": "182-196",
+    "finding": "ZIP64 extra-field offset calculation assumes field order",
+    "detail": "The code assumes uncompressed-size precedes compressed-size precedes local-header-offset in the ZIP64 extended-info block, but the spec says fields are present in that order only when their corresponding fixed fields are 0xFFFFFFFF. If MakeAppx ever emits only the local-offset field (other two not maxed), the 8-byte skip logic would read garbage. Current MakeAppx output may never trigger this, but the assumption is fragile."
+  },
+  {
+    "severity": "low",
+    "file": "scripts/package.ps1",
+    "lines": "161",
+    "finding": "$dosDate encodes midnight 2000-01-01, but comment says 00:00:00",
+    "detail": "0x2821 decodes to date 2000-01-01 (bits 9-15 = 20 → year 2000, bits 5-8 = 1 → Jan, bits 0-4 = 1 → day 1) and time 0x0000 is written separately, so the result is correct. This is info-level confirmation that the encoding is valid."
+  },
+  {
+    "severity": "info",
+    "file": "scripts/package.ps1",
+    "lines": "107-230",
+    "finding": "No explicit integer-overflow protection in PowerShell arithmetic",
+    "detail": "PowerShell uses signed 32/64-bit integers with silent overflow in older versions. The bounds checks rely on comparisons like $centralStart + $centralSize -ne $eocd which could wrap on a >2 GB central directory. Current MSIX sizes make this unreachable, but for completeness the code could use [bigint] or explicit overflow checks if future packages grow."
+  }
+]
+```
+
+The timestamp normalizer is well-structured and the dual-run determinism evidence is convincing—identical 18 KB packages with matching per-entry hashes is strong confirmation. The main actionable issue is partial-write atomicity: a failed WriteAllBytes leaves the package corrupted rather than intact or absent. The EOCD false-positive risk is real but unlikely given MakeAppx's controlled output. The ZIP64 extra-field ordering assumption is technically fragile though probably safe against current tooling. No critical flaws; the package appears to meet the stated goal of deterministic unsigned MSIX generation for developer bootstrap purposes.

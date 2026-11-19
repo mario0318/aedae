@@ -1,12 +1,35 @@
 # Operation signature verification gate
 
-Status: BLOCKED for stable v1, not implemented
+Status: BLOCKED for stable v1, not implemented. Unchanged.
+
+> **Annotation (2026-09-08) — this document's blocking posture stands.**
+> `reports/T-019-operation-signing-envelope-finding.md` identifies a *candidate* envelope observed
+> in the `PasskeyManager` sample: a signature over `[pbEncodedRequest, pbEncodedRequest +
+> cbEncodedRequest)`, SHA-256, padding selected from the operation-signing key blob's `Magic`.
+>
+> That does **not** lift the prohibition below. Sample behaviour is evidence of one implementation,
+> not a supported contract, and this document requires an exact contract-defined byte sequence with
+> no fallback behaviour. No v1 verifier may be implemented against an unconfirmed construction. The
+> HIGH request-authentication finding remains open.
+>
+> What has changed is only the shape of the question put upstream: from "what is signed" to
+> "is this specific construction contractual". See
+> `reports/microsoft-v1-envelope-clarification-request.md`.
+>
+> Two further gaps are recorded there and must be resolved before this design is completed:
+> cancellation carries a signature field but no message to sign and no reference verification (G2),
+> which makes the cancellation rule under "Failure and cancellation behavior" unimplementable as
+> written; and the envelope sits outside the header declarations, so the contract guard cannot
+> detect a change to it (G3).
 
 ## Stable v1 decision
 
 T-015 applies only to the stable v1 contract. The reviewed headers and available documentation do not define the exact signed bytes, serialization, signature algorithm, or required bindings for `WEBAUTHN_PLUGIN_OPERATION_REQUEST`. Therefore no v1 request-signature verifier may be inferred, reverse engineered, or implemented. The HIGH request-authentication finding remains open.
 
-Experimental v2 APIs are out of scope for T-015. They are handled only by T-017 and remain prohibited from production use pending a separate security review and explicit human go/no-go decision.
+Experimental v2 APIs are out of scope for T-015 and prohibited by ADR-001. T-017 governs
+contract-manifest protection, not v2 evaluation. No v2 implementation or prototype task exists;
+any future non-production research proposal requires a separate ADR, security review, and explicit
+human go/no-go decision.
 
 ## Rule
 
